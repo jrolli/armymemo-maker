@@ -13,7 +13,7 @@
 # Cargo.lock changed), rerun, and commit the vendor/esign/ diff.
 set -euo pipefail
 
-COMMIT="20de92305d74ff46a3eab3e173fca6348e5a1a9c"
+COMMIT="d777d66202dc1aac29e2aaae6eb8535aab0e649c"
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 stage="$(mktemp -d)"

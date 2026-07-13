@@ -71,9 +71,18 @@ Everything the compiler needs ships in the bundle:
   [jrolli/esign](https://github.com/jrolli/esign) commit by
   `scripts/vendor-esign.sh` (requires the Rust wasm32 target and a
   wasm-bindgen-cli matching esign's Cargo.lock; see the script header).
-  Provenance recorded in `vendor/esign/PROVENANCE`.
+  Licensed AGPL-3.0-or-later (`vendor/esign/LICENSE`); provenance recorded
+  in `vendor/esign/PROVENANCE`.
 
 Note on CSP: the production policy allows `'unsafe-eval'` in `script-src`
 because the compiler WASM's `js_sys::global()` fallback evaluates
 `Function("return this")` at startup. Script sources remain `'self'`; no
 external origin is loadable.
+
+## License
+
+This project is licensed under the
+[GNU Affero General Public License v3.0 or later](LICENSE)
+(AGPL-3.0-or-later), matching the licenses of the vendored
+[esign](https://github.com/jrolli/esign) and
+[armymemo](https://github.com/jrolli/armymemo) components.
