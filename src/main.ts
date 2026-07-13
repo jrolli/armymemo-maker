@@ -91,29 +91,65 @@ function showDiagnostics(text: string) {
   diagnosticsPane.hidden = false;
 }
 
-compileButton.addEventListener("click", async () => {
+async function compileOnce() {
+  const outcome = await compileToPdf(editor.getSource());
+  if (outcome.ok) {
+    const outputPdf = await toOutputPdf(outcome);
+    latestPdf = outputPdf;
+    showPreview(outputPdf);
+    downloadButton.disabled = false;
+    downloadButton.removeAttribute("aria-disabled");
+    downloadButton.title = "Download the compiled memo";
+  } else {
+    fieldStatus.hidden = true;
+    showDiagnostics(outcome.diagnostics);
+  }
+}
+
+// Single-flight compile with coalescing (design D3 of add-auto-compile):
+// requests during a running compile set `dirty`, and one trailing rerun picks
+// up the latest editor source.
+let compiling = false;
+let dirty = false;
+
+async function requestCompile() {
+  if (compiling) {
+    dirty = true;
+    return;
+  }
+  compiling = true;
   compileButton.disabled = true;
   compileButton.setAttribute("aria-busy", "true");
   const idleLabel = "Compile";
   compileButton.textContent = "Compiling…";
   try {
-    const outcome = await compileToPdf(editor.getSource());
-    if (outcome.ok) {
-      const outputPdf = await toOutputPdf(outcome);
-      latestPdf = outputPdf;
-      showPreview(outputPdf);
-      downloadButton.disabled = false;
-      downloadButton.removeAttribute("aria-disabled");
-      downloadButton.title = "Download the compiled memo";
-    } else {
-      fieldStatus.hidden = true;
-      showDiagnostics(outcome.diagnostics);
-    }
+    do {
+      dirty = false;
+      await compileOnce();
+    } while (dirty);
   } finally {
+    compiling = false;
     compileButton.textContent = idleLabel;
     compileButton.removeAttribute("aria-busy");
     compileButton.disabled = false;
   }
+}
+
+const DEBOUNCE_MS = 500;
+let debounceTimer: number | undefined;
+
+editor.onChange(() => {
+  clearTimeout(debounceTimer);
+  debounceTimer = window.setTimeout(() => {
+    debounceTimer = undefined;
+    void requestCompile();
+  }, DEBOUNCE_MS);
+});
+
+compileButton.addEventListener("click", () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = undefined;
+  void requestCompile();
 });
 
 downloadButton.addEventListener("click", () => {
@@ -127,5 +163,9 @@ downloadButton.addEventListener("click", () => {
   link.click();
   URL.revokeObjectURL(url);
 });
+
+// Initial automatic compile of the starter example (design D5); also warms
+// the lazy compiler-WASM load.
+void requestCompile();
 
 export { editor };
