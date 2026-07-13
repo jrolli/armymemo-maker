@@ -46,6 +46,51 @@ interface Diagnostic {
 
 let initPromise: Promise<void> | undefined;
 
+const GZIP_MAGIC_0 = 0x1f;
+const GZIP_MAGIC_1 = 0x8b;
+
+/**
+ * Fetch the compiler WASM, inflating it when it arrives gzipped (design D4 of
+ * compress-compiler-wasm). The production build ships the ~27 MiB module as
+ * .wasm.gz to stay under static-host per-file caps; dev serves it raw from
+ * node_modules. Sniffing the gzip magic bytes instead of the URL suffix keeps
+ * one code path for both, and degrades to pass-through if a host serves .gz
+ * with Content-Encoding so the browser has already inflated it. The returned
+ * Response streams into WebAssembly.instantiateStreaming via wasm-bindgen.
+ */
+async function fetchCompilerModule(): Promise<Response> {
+  const response = await fetch(compilerWasmUrl);
+  if (!response.ok || response.body === null) {
+    throw new Error(`failed to load compiler WASM (${response.status})`);
+  }
+  const reader = response.body.getReader();
+  const first = await reader.read();
+  const head = first.value ?? new Uint8Array(0);
+  const rest = new ReadableStream<Uint8Array>({
+    start(controller) {
+      if (head.length > 0) controller.enqueue(head);
+    },
+    async pull(controller) {
+      const { done, value } = await reader.read();
+      if (done) {
+        controller.close();
+      } else {
+        controller.enqueue(value);
+      }
+    },
+    cancel(reason) {
+      return reader.cancel(reason);
+    },
+  });
+  const isGzip = head.length >= 2 && head[0] === GZIP_MAGIC_0 && head[1] === GZIP_MAGIC_1;
+  // lib.dom types DecompressionStream's writable as WritableStream<BufferSource>,
+  // which strict variance rejects in pipeThrough; at runtime the pair is
+  // Uint8Array in, Uint8Array out.
+  const gunzip = new DecompressionStream("gzip") as unknown as ReadableWritablePair<Uint8Array, Uint8Array>;
+  const body = isGzip ? rest.pipeThrough(gunzip) : rest;
+  return new Response(body, { headers: { "Content-Type": "application/wasm" } });
+}
+
 async function initOnce(): Promise<void> {
   initPromise ??= (async () => {
     const tarballResponse = await fetch(armymemoTarballUrl);
@@ -54,7 +99,7 @@ async function initOnce(): Promise<void> {
     }
     const armymemoTarball = new Uint8Array(await tarballResponse.arrayBuffer());
 
-    $typst.setCompilerInitOptions({ getModule: () => compilerWasmUrl });
+    $typst.setCompilerInitOptions({ getModule: () => fetchCompilerModule() });
 
     const accessModel = new MemoryAccessModel();
     $typst.use(

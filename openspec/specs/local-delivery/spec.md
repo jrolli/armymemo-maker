@@ -10,6 +10,7 @@ The static, local-only delivery model for memo.army.dev — self-contained bundl
 - *No runtime network traffic beyond own origin* — the `injectProductionCsp` plugin in `vite.config.ts` plus `scripts/check-local-only.mjs`, which fails `npm run build` on any external-origin reference in `dist/`.
 - *Local development workflow* — the `dev`/`build`/`preview` scripts in `package.json`, documented in `README.md`.
 - *Offline availability after first visit* — `scripts/generate-sw.mjs` (build-generated service worker), `scripts/check-precache.mjs` (build-failing completeness check), and the production-only registration in `src/main.ts`; verified with the network fully unreachable.
+- *Static-host per-file size limit* — `scripts/check-asset-size.mjs`, which fails `npm run build` on any `dist/` file of 25 MiB or larger, and the `compressCompilerWasm` plugin in `vite.config.ts`, which ships the Typst compiler WASM compressed for in-browser decoding.
 
 Hosting the built `dist/` at memo.army.dev over https is deliberately outside this spec's scope: the requirements are written against "any plain static file server" so the contract is provable without reference to any particular host.
 ## Requirements
@@ -72,4 +73,19 @@ When served over a secure context (https or localhost), the app SHALL register a
 #### Scenario: Offline machinery is same-origin only
 - **WHEN** the service worker installs, serves, or updates content
 - **THEN** every fetched or cached URL is on the app's own origin
+
+### Requirement: Static-host per-file size limit
+Every file in the production bundle (`dist/`) SHALL be smaller than 25 MiB (26,214,400 bytes), so the bundle can be uploaded to static hosts that enforce a per-file size cap (such as Cloudflare). Assets whose raw form exceeds the limit SHALL be shipped in a compressed encoding that the app decodes in the browser at load time, without introducing any non-self-origin request and without depending on host-specific serving behavior (such as `Content-Encoding` headers) that a plain static file server would not provide. This SHALL be enforced by an automated build-time check that fails the build and names each offending file and its size.
+
+#### Scenario: Build fails on an oversized file
+- **WHEN** a production build emits a file in `dist/` of 25 MiB or larger
+- **THEN** the build fails, and the check's output names the offending file and its size
+
+#### Scenario: Bundle deploys within the cap
+- **WHEN** the production bundle is built
+- **THEN** every file in `dist/` — including the Typst compiler WASM, shipped compressed — is under 25 MiB
+
+#### Scenario: Compressed assets work from a plain static server
+- **WHEN** the bundle is served by a plain static file server with no special header configuration and the user compiles a memo
+- **THEN** the app loads the compressed compiler asset from the app's own origin, decodes it in the browser, and compilation succeeds exactly as with an uncompressed asset
 

@@ -1,4 +1,5 @@
 import { defineConfig, type Plugin } from "vite";
+import { gzipSync } from "node:zlib";
 
 // Production CSP: everything must come from the site's own origin.
 // Dev mode is intentionally uncovered — Vite's dev server injects styles and
@@ -45,8 +46,61 @@ function injectProductionCsp(): Plugin {
   };
 }
 
+// The Typst compiler WASM is ~27 MiB raw, over the 25 MiB per-file cap that
+// static hosts like Cloudflare enforce on uploads. Ship it gzipped (~11 MiB);
+// the runtime loader in typst-service.ts inflates it via DecompressionStream
+// (design D3/D4 of compress-compiler-wasm). The worker bundle references the
+// asset as a plain URL string, so renaming means rewriting those strings in
+// every emitted chunk/asset that carries one.
+const COMPILER_WASM_PATTERN = /typst_ts_web_compiler_bg-[^/]+\.wasm$/;
+
+function compressCompilerWasm(): Plugin {
+  return {
+    name: "compress-compiler-wasm",
+    apply: "build",
+    generateBundle(_options, bundle) {
+      const matches = Object.keys(bundle).filter((name) => COMPILER_WASM_PATTERN.test(name));
+      const oldName = matches[0];
+      if (oldName === undefined || matches.length !== 1) {
+        throw new Error(
+          `compress-compiler-wasm: expected exactly one compiler .wasm asset, found ${matches.length}` +
+            (matches.length > 0 ? ` (${matches.join(", ")})` : "") +
+            " — did a typst.ts upgrade rename it?",
+        );
+      }
+      const asset = bundle[oldName];
+      if (asset === undefined || asset.type !== "asset" || typeof asset.source === "string") {
+        throw new Error(`compress-compiler-wasm: ${oldName} is not a binary asset`);
+      }
+      const newName = `${oldName}.gz`;
+      const compressed = gzipSync(asset.source, { level: 9 });
+      delete bundle[oldName];
+      this.emitFile({ type: "asset", fileName: newName, source: compressed });
+
+      let rewritten = 0;
+      for (const entry of Object.values(bundle)) {
+        const content =
+          entry.type === "chunk" ? entry.code : typeof entry.source === "string" ? entry.source : undefined;
+        if (content === undefined || !content.includes(oldName)) continue;
+        const updated = content.split(oldName).join(newName);
+        if (entry.type === "chunk") {
+          entry.code = updated;
+        } else {
+          entry.source = updated;
+        }
+        rewritten += 1;
+      }
+      if (rewritten === 0) {
+        throw new Error(
+          `compress-compiler-wasm: no emitted file references ${oldName} — cannot verify the URL rewrite`,
+        );
+      }
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [injectProductionCsp()],
+  plugins: [injectProductionCsp(), compressCompilerWasm()],
   // The compile worker's module graph (typst.ts) uses dynamic imports, which
   // the default iife worker format rejects (design D4 of add-compile-worker).
   worker: { format: "es" },

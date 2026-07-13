@@ -5,14 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && node scripts/generate-sw.mjs && npm run check:local-only && npm run check:precache",
+    "build": "tsc --noEmit && vite build && node scripts/generate-sw.mjs && npm run check:local-only && npm run check:precache && npm run check:asset-size",
     "check:local-only": "node scripts/check-local-only.mjs",
     "check:precache": "node scripts/check-precache.mjs",
+    "check:asset-size": "node scripts/check-asset-size.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {
     "@myriaddreamin/typst-ts-web-compiler": "0.7.0",
     "@myriaddreamin/typst.ts": "0.7.0",
+    "@types/node": "^26.1.1",
     "playwright": "^1.61.1",
     "typescript": "^5.6.0",
     "vite": "^7.0.0"

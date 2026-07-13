@@ -60,7 +60,13 @@ Everything the compiler needs ships in the bundle:
   selected via armymemo's `font` input as the metric-compatible stand-in for
   Arial. Default typst.ts font fetching (from GitHub) is disabled.
 - **Typst compiler WASM** — `@myriaddreamin/typst-ts-web-compiler` 0.7.0
-  (~28 MB, ~11 MB gzipped), loaded lazily on first Compile.
+  (~28 MB raw), loaded lazily on first Compile. The production build ships it
+  gzipped (~11 MB `.wasm.gz`, see the `compress-compiler-wasm` plugin in
+  `vite.config.ts`) and the app inflates it in-browser via
+  `DecompressionStream`, keeping every `dist/` file under the 25 MiB per-file
+  cap that static hosts like Cloudflare enforce on uploads.
+  `npm run check:asset-size` fails the build if any `dist/` file reaches that
+  cap (it runs as part of `npm run build`).
 - **esign WASM** — `vendor/esign/` (~1.2 MB), built from a pinned
   [jrolli/esign](https://github.com/jrolli/esign) commit by
   `scripts/vendor-esign.sh` (requires the Rust wasm32 target and a
