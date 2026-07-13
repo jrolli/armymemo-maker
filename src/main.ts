@@ -1,6 +1,6 @@
 import "./style.css";
 import { createEditor } from "./editor";
-import { compileToPdf, type SignatureField } from "./typst-service";
+import { compileToPdf, deriveDownloadFilename, type SignatureField } from "./typst-service";
 import { addFields } from "./esign-service";
 import exampleSource from "./assets/example.typ?raw";
 
@@ -24,6 +24,7 @@ const editor = createEditor(textarea);
 editor.setSource(exampleSource);
 
 let latestPdf: Uint8Array | undefined;
+let latestFilename = "memo.pdf";
 let latestFields: SignatureField[] | undefined;
 let previewUrl: string | undefined;
 
@@ -92,10 +93,15 @@ function showDiagnostics(text: string) {
 }
 
 async function compileOnce() {
-  const outcome = await compileToPdf(editor.getSource());
+  // Snapshot the source so the download filename always matches the bytes it
+  // names, even if the editor has newer, uncompiled text (design D2 of
+  // add-subject-download-filename).
+  const source = editor.getSource();
+  const outcome = await compileToPdf(source);
   if (outcome.ok) {
     const outputPdf = await toOutputPdf(outcome);
     latestPdf = outputPdf;
+    latestFilename = deriveDownloadFilename(source);
     showPreview(outputPdf);
     downloadButton.disabled = false;
     downloadButton.removeAttribute("aria-disabled");
@@ -159,7 +165,7 @@ downloadButton.addEventListener("click", () => {
   const url = URL.createObjectURL(new Blob([latestPdf.slice().buffer], { type: "application/pdf" }));
   const link = document.createElement("a");
   link.href = url;
-  link.download = "memo.pdf";
+  link.download = latestFilename;
   link.click();
   URL.revokeObjectURL(url);
 });
