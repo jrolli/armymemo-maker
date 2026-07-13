@@ -16,8 +16,21 @@ import fontSansBoldUrl from "./assets/fonts/LiberationSans-Bold.ttf?url";
 import fontSansItalicUrl from "./assets/fonts/LiberationSans-Italic.ttf?url";
 import fontSansBoldItalicUrl from "./assets/fonts/LiberationSans-BoldItalic.ttf?url";
 
+/** One esign signature field: PDF points, top-left origin, 1-indexed page. */
+export interface SignatureField {
+  name: string;
+  page: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/** Extraction result: a valid manifest, or why none could be retained. */
+export type FieldExtraction = { fields: SignatureField[] } | { error: string };
+
 export type CompileOutcome =
-  | { ok: true; pdf: Uint8Array }
+  | { ok: true; pdf: Uint8Array; fields: FieldExtraction }
   | { ok: false; diagnostics: string };
 
 const MAIN_FILE = "/main.typ";
@@ -59,6 +72,39 @@ async function initOnce(): Promise<void> {
   return initPromise;
 }
 
+function validateManifest(raw: unknown): FieldExtraction {
+  if (!Array.isArray(raw)) {
+    return { error: `expected a list of fields, got ${typeof raw}` };
+  }
+  const fields: SignatureField[] = [];
+  const seen = new Set<string>();
+  for (const [index, entry] of raw.entries()) {
+    const at = (name: string) => `field ${name ? `"${name}"` : `#${index + 1}`}`;
+    if (typeof entry !== "object" || entry === null) {
+      return { error: `${at("")} is not an object` };
+    }
+    const { name, page, x, y, w, h } = entry as Record<string, unknown>;
+    if (typeof name !== "string" || name.length === 0) {
+      return { error: `${at("")} has a missing or empty name` };
+    }
+    if (seen.has(name)) {
+      return { error: `duplicate field name "${name}"` };
+    }
+    if (typeof page !== "number" || !Number.isInteger(page) || page < 1) {
+      return { error: `${at(name)} has invalid page ${JSON.stringify(page)}` };
+    }
+    if (typeof x !== "number" || !Number.isFinite(x) || typeof y !== "number" || !Number.isFinite(y)) {
+      return { error: `${at(name)} has non-finite coordinates` };
+    }
+    if (typeof w !== "number" || !(w > 0) || typeof h !== "number" || !(h > 0)) {
+      return { error: `${at(name)} has non-positive size` };
+    }
+    seen.add(name);
+    fields.push({ name, page, x, y, w, h });
+  }
+  return { fields };
+}
+
 function formatDiagnostics(diagnostics: Diagnostic[]): string {
   return diagnostics
     .map((d) => {
@@ -80,7 +126,29 @@ export async function compileToPdf(source: string): Promise<CompileOutcome> {
       inputs: { font: COMPILE_FONT },
     });
     if (result) {
-      return { ok: true, pdf: result };
+      // Same inputs as the PDF pass: coordinates must come from the same
+      // layout (fonts affect metrics). An extraction failure never voids the
+      // compiled PDF (design D2).
+      let fields: FieldExtraction;
+      try {
+        // TypstCompiler.query/$typst.query snapshot a world without compiling
+        // it ("document is not compiled"); go through runWithWorld and compile
+        // the paged document explicitly before querying.
+        const raw = await compiler.runWithWorld(
+          { mainFilePath: MAIN_FILE, inputs: { font: COMPILE_FONT } },
+          async (world) => {
+            const paged = await world.compile();
+            if (paged.hasError) {
+              throw new Error("query pass failed to compile the document");
+            }
+            return world.query({ selector: "<esign-field>", field: "value" });
+          },
+        );
+        fields = validateManifest(raw);
+      } catch (error) {
+        fields = { error: error instanceof Error ? error.message : String(error) };
+      }
+      return { ok: true, pdf: result, fields };
     }
     const errors = (diagnostics as Diagnostic[] | undefined) ?? [];
     return {

@@ -68,8 +68,24 @@ body {
 }
 
 .pane-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--border);
+}
+
+.field-status {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.field-status--warn {
+  color: #92400e;
 }
 
 .pane-header h2 {

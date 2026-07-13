@@ -1,6 +1,6 @@
 import "./style.css";
 import { createEditor } from "./editor";
-import { compileToPdf } from "./typst-service";
+import { compileToPdf, type FieldExtraction, type SignatureField } from "./typst-service";
 import exampleSource from "./assets/example.typ?raw";
 
 function element<T extends HTMLElement>(id: string, type: new () => T): T {
@@ -15,6 +15,7 @@ const textarea = element("source-editor", HTMLTextAreaElement);
 const compileButton = element("compile-button", HTMLButtonElement);
 const downloadButton = element("download-button", HTMLButtonElement);
 const emptyState = element("output-empty", HTMLDivElement);
+const fieldStatus = element("field-status", HTMLParagraphElement);
 const diagnosticsPane = element("diagnostics", HTMLPreElement);
 const preview = element("pdf-preview", HTMLIFrameElement);
 
@@ -22,7 +23,28 @@ const editor = createEditor(textarea);
 editor.setSource(exampleSource);
 
 let latestPdf: Uint8Array | undefined;
+let latestFields: SignatureField[] | undefined;
 let previewUrl: string | undefined;
+
+function showFieldStatus(extraction: FieldExtraction) {
+  fieldStatus.classList.remove("field-status--warn");
+  delete fieldStatus.dataset.manifest;
+  if ("error" in extraction) {
+    latestFields = undefined;
+    fieldStatus.textContent = `Signature field problem: ${extraction.error}`;
+    fieldStatus.classList.add("field-status--warn");
+  } else if (extraction.fields.length === 0) {
+    latestFields = undefined;
+    fieldStatus.textContent = "No signature fields — download will be a plain (non-signable) PDF";
+  } else {
+    latestFields = extraction.fields;
+    const names = extraction.fields.map((field) => field.name).join(", ");
+    const plural = extraction.fields.length === 1 ? "" : "s";
+    fieldStatus.textContent = `${extraction.fields.length} signature field${plural}: ${names}`;
+    fieldStatus.dataset.manifest = JSON.stringify(extraction.fields);
+  }
+  fieldStatus.hidden = false;
+}
 
 function showPreview(pdf: Uint8Array) {
   if (previewUrl) {
@@ -52,10 +74,12 @@ compileButton.addEventListener("click", async () => {
     if (outcome.ok) {
       latestPdf = outcome.pdf;
       showPreview(outcome.pdf);
+      showFieldStatus(outcome.fields);
       downloadButton.disabled = false;
       downloadButton.removeAttribute("aria-disabled");
       downloadButton.title = "Download the compiled memo";
     } else {
+      fieldStatus.hidden = true;
       showDiagnostics(outcome.diagnostics);
     }
   } finally {
