@@ -47,6 +47,9 @@ function injectProductionCsp(): Plugin {
 
 export default defineConfig({
   plugins: [injectProductionCsp()],
+  // The compile worker's module graph (typst.ts) uses dynamic imports, which
+  // the default iife worker format rejects (design D4 of add-compile-worker).
+  worker: { format: "es" },
   build: {
     // Keep output auditable for the local-only check: no inline assets.
     assetsInlineLimit: 0,

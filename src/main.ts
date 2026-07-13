@@ -1,7 +1,8 @@
 import "./style.css";
 import { createEditor } from "./editor";
-import { compileToPdf, deriveDownloadFilename, type SignatureField } from "./typst-service";
-import { addFields } from "./esign-service";
+import { compileToPdf, addFields } from "./compile-client";
+import { deriveDownloadFilename } from "./download-filename";
+import type { SignatureField } from "./typst-service";
 import { loadDraft, saveDraft } from "./draft-store";
 import exampleSource from "./assets/example.typ?raw";
 
