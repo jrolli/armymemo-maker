@@ -91,13 +91,31 @@ async function fetchCompilerModule(): Promise<Response> {
   return new Response(body, { headers: { "Content-Type": "application/wasm" } });
 }
 
+/**
+ * Fetch the vendored armymemo tarball, restoring the gzip layer when the
+ * delivery path stripped it (design D1 of fix-dev-tarball-encoding). Servers
+ * that infer Content-Encoding from the .gz extension — Vite's dev server
+ * among them — make the browser inflate the body in transit, but typst.ts's
+ * package loader requires the gzipped bytes.
+ */
+async function fetchArmymemoTarball(): Promise<Uint8Array> {
+  const response = await fetch(armymemoTarballUrl);
+  if (!response.ok) {
+    throw new Error(`failed to load vendored armymemo package (${response.status})`);
+  }
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  if (bytes.length >= 2 && bytes[0] === GZIP_MAGIC_0 && bytes[1] === GZIP_MAGIC_1) {
+    return bytes;
+  }
+  // Same lib.dom variance workaround as the DecompressionStream above.
+  const gzip = new CompressionStream("gzip") as unknown as ReadableWritablePair<Uint8Array, Uint8Array>;
+  const regzipped = new Response(new Response(bytes).body!.pipeThrough(gzip));
+  return new Uint8Array(await regzipped.arrayBuffer());
+}
+
 async function initOnce(): Promise<void> {
   initPromise ??= (async () => {
-    const tarballResponse = await fetch(armymemoTarballUrl);
-    if (!tarballResponse.ok) {
-      throw new Error(`failed to load vendored armymemo package (${tarballResponse.status})`);
-    }
-    const armymemoTarball = new Uint8Array(await tarballResponse.arrayBuffer());
+    const armymemoTarball = await fetchArmymemoTarball();
 
     $typst.setCompilerInitOptions({ getModule: () => fetchCompilerModule() });
 
