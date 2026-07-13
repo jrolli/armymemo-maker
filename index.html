@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Produce signable AR 25-50 Army memo PDFs from Typst source, entirely in your browser."
+    />
+    <title>memo.army.dev</title>
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>memo.army.dev</h1>
+      <p class="tagline">Signable AR 25-50 memos, rendered entirely in your browser</p>
+    </header>
+
+    <main class="app-main">
+      <section class="pane editor-pane" aria-label="Typst source editor">
+        <div class="pane-header">
+          <h2>Typst source</h2>
+        </div>
+        <textarea
+          id="source-editor"
+          class="source-editor"
+          spellcheck="false"
+          autocomplete="off"
+          autocapitalize="off"
+          autocorrect="off"
+          wrap="off"
+          aria-label="Typst memo source"
+        ></textarea>
+      </section>
+
+      <section class="pane output-pane" aria-label="Compiled memo output">
+        <div class="pane-header">
+          <h2>Output</h2>
+        </div>
+        <div class="output-body">
+          <div id="output-empty" class="empty-state">
+            <p><strong>Nothing compiled yet.</strong></p>
+            <p>The PDF preview will appear here once compilation support arrives.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="action-bar">
+      <div class="actions">
+        <button
+          id="compile-button"
+          type="button"
+          disabled
+          aria-disabled="true"
+          title="Not available yet — Typst compilation arrives in a future update"
+        >
+          Compile
+        </button>
+        <button
+          id="download-button"
+          type="button"
+          disabled
+          aria-disabled="true"
+          title="Not available yet — PDF download arrives in a future update"
+        >
+          Download PDF
+        </button>
+      </div>
+      <p class="local-note">100% local — your document never leaves this browser.</p>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
