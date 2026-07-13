@@ -65,8 +65,12 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) {
     return;
   }
-  // Navigations always get the cached shell; hashed assets are cache-first.
-  const target = request.mode === "navigate" ? "/" : request;
+  // Navigations get the cached page when the path is a precached HTML entry
+  // (e.g. /acknowledgements.html) and the app shell otherwise; hashed assets
+  // are cache-first.
+  const path = new URL(request.url).pathname;
+  const target =
+    request.mode === "navigate" ? (ASSETS.includes(path) ? path : "/") : request;
   event.respondWith(
     caches.match(target, { cacheName: CACHE }).then((cached) => cached ?? fetch(request)),
   );

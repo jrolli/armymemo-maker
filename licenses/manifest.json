@@ -1,0 +1,71 @@
+{
+  "$comment": "Notice inventory for the acknowledgements page (design D1 of add-acknowledgements-page). Regenerated/consumed by scripts/generate-acknowledgements.mjs; kept in sync with the shipped versions by scripts/check-acknowledgements.mjs, which fails `npm run build` on drift. License texts for the SPDX ids referenced here live in licenses/texts/ (fetched at maintenance time from the spdx/license-list-data tag below), except AGPL-3.0-or-later (the repository's own LICENSE) and OFL-1.1 (src/assets/fonts/LICENSE, which carries the Liberation copyright header).",
+  "spdxDataTag": "v3.28.0",
+  "components": [
+    {
+      "id": "app",
+      "name": "memo.army.dev",
+      "version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "source": "https://github.com/jrolli/armymemo-maker",
+      "copyright": ["Copyright (C) John E. Rollinson (jrolli) and the memo.army.dev contributors"],
+      "description": "The application itself — the page markup, styles, and compiled TypeScript delivered in the bundle."
+    },
+    {
+      "id": "typst.ts",
+      "name": "typst.ts",
+      "version": "0.7.0",
+      "license": "Apache-2.0",
+      "source": "https://github.com/Myriad-Dreamin/typst.ts",
+      "copyright": ["Copyright 2023-2025 Myriad-Dreamin"],
+      "description": "The @myriaddreamin/typst.ts JavaScript runtime and the @myriaddreamin/typst-ts-web-compiler WASM binary (the in-browser Typst compiler).",
+      "crates": {
+        "file": "typst-ts-web-compiler-crates.json",
+        "heading": "Rust crates compiled into the Typst compiler WASM",
+        "note": "Dependency closure of the typst-ts-web-compiler crate (features web,misc, target wasm32-unknown-unknown) at the v0.7.0 tag, per its Cargo.lock."
+      }
+    },
+    {
+      "id": "esign",
+      "name": "esign",
+      "version": "0.2.0",
+      "commit": "d777d66202dc1aac29e2aaae6eb8535aab0e649c",
+      "license": "AGPL-3.0-or-later",
+      "source": "https://github.com/jrolli/esign",
+      "copyright": ["Copyright (C) John E. Rollinson (jrolli)"],
+      "description": "The esign WASM module that places PDF signature form fields (vendor/esign/).",
+      "crates": {
+        "file": "esign-crates.json",
+        "heading": "Rust crates compiled into the esign WASM",
+        "note": "Dependency closure of the esign crate (feature wasm, target wasm32-unknown-unknown) at the pinned commit, per its Cargo.lock."
+      }
+    },
+    {
+      "id": "armymemo",
+      "name": "armymemo",
+      "version": "0.1.0",
+      "license": "AGPL-3.0-or-later",
+      "source": "https://github.com/jrolli/armymemo",
+      "copyright": ["Copyright (C) the armymemo authors (jschless, jrolli)"],
+      "description": "AR 25-50 Army memorandum template for Typst, vendored as vendor/armymemo-0.1.0.tar.gz (its LICENSE ships inside the tarball)."
+    },
+    {
+      "id": "liberation-fonts",
+      "name": "Liberation Sans",
+      "version": "2.1.5",
+      "license": "OFL-1.1",
+      "source": "https://github.com/liberationfonts/liberation-fonts",
+      "copyright": [
+        "Digitized data copyright (c) 2010 Google Corporation with Reserved Font Arimo, Tinos and Cousine.",
+        "Copyright (c) 2012 Red Hat, Inc. with Reserved Font Name Liberation."
+      ],
+      "description": "Metric-compatible stand-in for Arial, embedded in compiled PDFs.",
+      "fonts": [
+        "LiberationSans-Bold.ttf",
+        "LiberationSans-BoldItalic.ttf",
+        "LiberationSans-Italic.ttf",
+        "LiberationSans-Regular.ttf"
+      ]
+    }
+  ]
+}

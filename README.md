@@ -95,6 +95,38 @@ Everything the compiler needs ships in the bundle:
   Licensed AGPL-3.0-or-later (`vendor/esign/LICENSE`); provenance recorded
   in `vendor/esign/PROVENANCE`.
 
+## Third-party notices (acknowledgements page)
+
+The bundle ships a static acknowledgements page (`/acknowledgements.html`,
+linked from the footer) listing every redistributed component — the typst.ts
+runtime and compiler WASM (Apache-2.0), the esign WASM (AGPL-3.0-or-later),
+armymemo (AGPL-3.0-or-later), Liberation Sans (SIL OFL-1.1, license vendored
+at `src/assets/fonts/LICENSE`), the app itself, and the Rust crates compiled
+into the two WASM binaries — with copyright lines and full license texts.
+
+The page is assembled from the committed notice inventory in `licenses/`
+(manifest, per-WASM crate inventories, license texts) by
+`node scripts/generate-acknowledgements.mjs`. Like the vendoring scripts, the
+inventory tooling may use the network at maintenance time; `npm run build`
+only bundles the committed page and stays hermetic. When bumping a dependency:
+
+- **typst.ts**: after updating the `@myriaddreamin/*` pins, run
+  `node scripts/generate-acknowledgements.mjs --refresh` (requires git and
+  cargo) — it re-derives the compiler WASM's crate inventory from the upstream
+  tag matching the pinned version and regenerates the page.
+- **esign**: `scripts/vendor-esign.sh` refreshes `licenses/esign-crates.json`
+  from the same pinned checkout that builds the WASM; then rerun
+  `node scripts/generate-acknowledgements.mjs`.
+- **armymemo / fonts / app version**: update `licenses/manifest.json` to
+  match, then rerun the generator.
+
+Commit the regenerated `acknowledgements.html` together with the inventory.
+`npm run check:acknowledgements` (part of `npm run build`) fails the build if
+the inventory no longer matches the shipped versions or the committed page is
+stale. License texts on that page quote URLs, so `check-local-only` exempts
+`acknowledgements.html` (and only it) from the URL scan — the CSP remains the
+live enforcement.
+
 Note on CSP: the production policy allows `'unsafe-eval'` in `script-src`
 because the compiler WASM's `js_sys::global()` fallback evaluates
 `Function("return this")` at startup. Script sources remain `'self'`; no

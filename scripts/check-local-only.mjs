@@ -54,6 +54,15 @@ try {
 
 const violations = [];
 for (const file of distFiles) {
+  // acknowledgements.html (and only it) is exempt from the URL scan: it is a
+  // page of legal notices, and license texts inescapably quote URLs
+  // (apache.org, gnu.org, scripts.sil.org, crate homepages, ...) as plain text
+  // or navigation-only links — never fetched resources. Allowlisting them
+  // individually would grow without bound on every dependency bump and drown
+  // the signal (design D5 of add-acknowledgements-page). The page carries the
+  // same production CSP as every other page and has no scripts; the CSP plus
+  // the browser-level same-origin assertions remain the live enforcement.
+  if (relative(DIST, file) === "acknowledgements.html") continue;
   const extension = file.slice(file.lastIndexOf("."));
   if (!TEXT_EXTENSIONS.has(extension)) continue;
   const content = readFileSync(file, "utf8");

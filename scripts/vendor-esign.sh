@@ -10,7 +10,10 @@
 #   cargo install wasm-bindgen-cli --version 0.2.126 --locked
 #
 # When bumping: update COMMIT (and the wasm-bindgen-cli version if esign's
-# Cargo.lock changed), rerun, and commit the vendor/esign/ diff.
+# Cargo.lock changed), rerun, and commit the vendor/esign/ diff plus the
+# refreshed licenses/esign-crates.json; then rerun
+# `node scripts/generate-acknowledgements.mjs` and commit the regenerated
+# acknowledgements.html (check-acknowledgements.mjs enforces all of this).
 set -euo pipefail
 
 COMMIT="d777d66202dc1aac29e2aaae6eb8535aab0e649c"
@@ -31,6 +34,13 @@ wasm-bindgen --target web --out-dir "$root/vendor/esign" \
   "$stage/esign/target/wasm32-unknown-unknown/release/esign.wasm"
 
 cp "$stage/esign/LICENSE" "$root/vendor/esign/LICENSE" 2>/dev/null || true
+
+# Emit the crate-level license inventory for the acknowledgements page from
+# the very checkout that produced the WASM, so binary and notices can never
+# come from different commits (design D2 of add-acknowledgements-page).
+node "$root/scripts/emit-crate-inventory.mjs" \
+  --manifest-path "$stage/esign/Cargo.toml" --package esign --features wasm \
+  --out "$root/licenses/esign-crates.json"
 {
   echo "Built from https://github.com/jrolli/esign at commit $COMMIT"
   echo "by scripts/vendor-esign.sh ($(wasm-bindgen --version))."

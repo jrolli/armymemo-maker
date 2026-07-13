@@ -203,16 +203,108 @@ body {
   color: var(--ink-muted);
 }
 
-.repo-link {
+.footer-links {
+  display: flex;
+  gap: 1rem;
   font-size: 0.8rem;
+}
+
+.footer-links a,
+.local-note a {
   color: var(--ink-muted);
-  text-decoration: underline;
+  text-decoration-color: var(--border);
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible,
+.local-note a:hover {
+  color: var(--accent);
+}
+
+.repo-link {
   white-space: nowrap;
 }
 
-.repo-link:hover,
-.repo-link:focus-visible {
+/* Acknowledgements page (acknowledgements.html — plain static HTML). */
+.ack-body {
+  height: auto;
+  min-height: 100%;
+}
+
+.ack-main {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.ack-main h2 {
+  margin: 2rem 0 0.75rem;
+  padding-bottom: 0.25rem;
+  font-size: 1.05rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.ack-main h3 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.ack-main h4 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 0.85rem;
+}
+
+.ack-main a {
   color: var(--accent);
+}
+
+.ack-version {
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+.ack-component {
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.ack-component h3 {
+  margin: 0 0 0.5rem;
+}
+
+.ack-component p {
+  margin: 0.25rem 0;
+}
+
+.ack-copyright {
+  color: var(--ink-muted);
+}
+
+.ack-crates {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+
+.ack-crates li {
+  margin: 0.15rem 0;
+  overflow-wrap: anywhere;
+}
+
+.ack-license-text {
+  padding: 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 
 /* Narrow viewports: stack panes vertically; nothing may clip or overlap. */
