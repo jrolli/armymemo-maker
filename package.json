@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && npm run check:local-only",
+    "build": "tsc --noEmit && vite build && node scripts/generate-sw.mjs && npm run check:local-only && npm run check:precache",
     "check:local-only": "node scripts/check-local-only.mjs",
+    "check:precache": "node scripts/check-precache.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {

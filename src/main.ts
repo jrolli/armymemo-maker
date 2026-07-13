@@ -179,4 +179,16 @@ downloadButton.addEventListener("click", () => {
 // the lazy compiler-WASM load.
 void requestCompile();
 
+// Offline support (design D3/D6 of add-offline-support): production-only —
+// dev serves no sw.js — and after load so registration never competes with
+// the first compile's WASM fetch. updateViaCache keeps the host's HTTP cache
+// from wedging sw.js updates.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).catch(() => {
+      // Registration failure just means no offline capability this visit.
+    });
+  });
+}
+
 export { editor };

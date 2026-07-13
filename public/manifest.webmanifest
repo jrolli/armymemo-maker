@@ -1,0 +1,17 @@
+{
+  "name": "memo.army.dev",
+  "short_name": "memo",
+  "description": "Produce signable AR 25-50 Army memo PDFs from Typst source, entirely in your browser.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1d21",
+  "theme_color": "#1a1d21",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
