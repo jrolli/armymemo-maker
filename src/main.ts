@@ -2,6 +2,7 @@ import "./style.css";
 import { createEditor } from "./editor";
 import { compileToPdf, deriveDownloadFilename, type SignatureField } from "./typst-service";
 import { addFields } from "./esign-service";
+import { loadDraft, saveDraft } from "./draft-store";
 import exampleSource from "./assets/example.typ?raw";
 
 function element<T extends HTMLElement>(id: string, type: new () => T): T {
@@ -21,7 +22,10 @@ const diagnosticsPane = element("diagnostics", HTMLPreElement);
 const preview = element("pdf-preview", HTMLIFrameElement);
 
 const editor = createEditor(textarea);
-editor.setSource(exampleSource);
+// Restore before wiring the save subscription so restoring never re-saves
+// (design D3 of add-draft-persistence); blank drafts fall back to the example.
+editor.setSource(loadDraft() ?? exampleSource);
+editor.onChange(saveDraft);
 
 let latestPdf: Uint8Array | undefined;
 let latestFilename = "memo.pdf";
