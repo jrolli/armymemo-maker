@@ -3,6 +3,15 @@
 ## Purpose
 
 The static, local-only delivery model for memo.army.dev — self-contained bundle, no runtime network dependencies, no data leaving the browser.
+
+**Status: implemented and enforced.** This capability is constraint-shaped, so its implementation lives in build machinery and automated checks rather than a feature module in `src/`:
+
+- *Self-contained static bundle* — vendored assets (`vendor/`, `src/assets/fonts/`) and the Vite build (`vite.config.ts`, `assetsInlineLimit: 0`); browser verification suites exercise the app from a bare static file server.
+- *No runtime network traffic beyond own origin* — the `injectProductionCsp` plugin in `vite.config.ts` plus `scripts/check-local-only.mjs`, which fails `npm run build` on any external-origin reference in `dist/`.
+- *Local development workflow* — the `dev`/`build`/`preview` scripts in `package.json`, documented in `README.md`.
+- *Offline availability after first visit* — `scripts/generate-sw.mjs` (build-generated service worker), `scripts/check-precache.mjs` (build-failing completeness check), and the production-only registration in `src/main.ts`; verified with the network fully unreachable.
+
+Hosting the built `dist/` at memo.army.dev over https is deliberately outside this spec's scope: the requirements are written against "any plain static file server" so the contract is provable without reference to any particular host.
 ## Requirements
 ### Requirement: Self-contained static bundle
 The production build SHALL emit a static bundle (`dist/`) containing every asset the app needs at runtime, and the app SHALL function when that bundle is served by any plain static file server with no server-side logic. Opening the bundle via `file://` is explicitly out of scope.
