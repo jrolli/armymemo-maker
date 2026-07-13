@@ -4,8 +4,10 @@ A fully client-side webapp for producing signable AR 25-50 Army memo PDFs.
 Type or paste [Typst](https://github.com/typst/typst) source using the
 [armymemo](https://github.com/jrolli/armymemo) package, compile it in-browser
 (via [typst.ts](https://github.com/Myriad-Dreamin/typst.ts) WebAssembly),
-preview the result, and download the PDF. Signature form fields added by
-[esign](https://github.com/jrolli/esign) arrive in an upcoming version.
+preview the result, and download a PDF whose signature form fields — extracted
+from the template's `<esign-field>` metadata — are placed by
+[esign](https://github.com/jrolli/esign) WASM, ready to sign in Adobe Acrobat
+or any standard PDF viewer.
 
 ## The local-only contract
 
@@ -48,6 +50,11 @@ Everything the compiler needs ships in the bundle:
   Arial. Default typst.ts font fetching (from GitHub) is disabled.
 - **Typst compiler WASM** — `@myriaddreamin/typst-ts-web-compiler` 0.7.0
   (~28 MB, ~11 MB gzipped), loaded lazily on first Compile.
+- **esign WASM** — `vendor/esign/` (~1.2 MB), built from a pinned
+  [jrolli/esign](https://github.com/jrolli/esign) commit by
+  `scripts/vendor-esign.sh` (requires the Rust wasm32 target and a
+  wasm-bindgen-cli matching esign's Cargo.lock; see the script header).
+  Provenance recorded in `vendor/esign/PROVENANCE`.
 
 Note on CSP: the production policy allows `'unsafe-eval'` in `script-src`
 because the compiler WASM's `js_sys::global()` fallback evaluates

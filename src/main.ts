@@ -1,6 +1,7 @@
 import "./style.css";
 import { createEditor } from "./editor";
-import { compileToPdf, type FieldExtraction, type SignatureField } from "./typst-service";
+import { compileToPdf, type SignatureField } from "./typst-service";
+import { addFields } from "./esign-service";
 import exampleSource from "./assets/example.typ?raw";
 
 function element<T extends HTMLElement>(id: string, type: new () => T): T {
@@ -26,24 +27,50 @@ let latestPdf: Uint8Array | undefined;
 let latestFields: SignatureField[] | undefined;
 let previewUrl: string | undefined;
 
-function showFieldStatus(extraction: FieldExtraction) {
-  fieldStatus.classList.remove("field-status--warn");
-  delete fieldStatus.dataset.manifest;
+function showFieldStatus(text: string, options: { warn?: boolean; manifest?: SignatureField[] } = {}) {
+  fieldStatus.classList.toggle("field-status--warn", options.warn === true);
+  if (options.manifest) {
+    fieldStatus.dataset.manifest = JSON.stringify(options.manifest);
+  } else {
+    delete fieldStatus.dataset.manifest;
+  }
+  fieldStatus.textContent = text;
+  fieldStatus.hidden = false;
+}
+
+/**
+ * Produce the output PDF and its status line: signable via esign when a valid
+ * non-empty manifest exists, otherwise the plain compiled PDF with a visible
+ * reason (design D3 of add-esign-signable-pdf).
+ */
+async function toOutputPdf(outcome: Extract<Awaited<ReturnType<typeof compileToPdf>>, { ok: true }>) {
+  const extraction = outcome.fields;
   if ("error" in extraction) {
     latestFields = undefined;
-    fieldStatus.textContent = `Signature field problem: ${extraction.error}`;
-    fieldStatus.classList.add("field-status--warn");
-  } else if (extraction.fields.length === 0) {
-    latestFields = undefined;
-    fieldStatus.textContent = "No signature fields — download will be a plain (non-signable) PDF";
-  } else {
-    latestFields = extraction.fields;
-    const names = extraction.fields.map((field) => field.name).join(", ");
-    const plural = extraction.fields.length === 1 ? "" : "s";
-    fieldStatus.textContent = `${extraction.fields.length} signature field${plural}: ${names}`;
-    fieldStatus.dataset.manifest = JSON.stringify(extraction.fields);
+    showFieldStatus(`Signature field problem: ${extraction.error} — download is the plain PDF`, { warn: true });
+    return outcome.pdf;
   }
-  fieldStatus.hidden = false;
+  if (extraction.fields.length === 0) {
+    latestFields = undefined;
+    showFieldStatus("No signature fields — download will be a plain (non-signable) PDF");
+    return outcome.pdf;
+  }
+  latestFields = extraction.fields;
+  const names = extraction.fields.map((field) => field.name).join(", ");
+  const plural = extraction.fields.length === 1 ? "" : "s";
+  const summary = `${extraction.fields.length} signature field${plural}: ${names}`;
+  try {
+    const signable = await addFields(outcome.pdf, extraction.fields);
+    showFieldStatus(`${summary} — signable PDF ready`, { manifest: extraction.fields });
+    return signable;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    showFieldStatus(`${summary} — esign failed: ${message} — download is the plain PDF`, {
+      warn: true,
+      manifest: extraction.fields,
+    });
+    return outcome.pdf;
+  }
 }
 
 function showPreview(pdf: Uint8Array) {
@@ -72,9 +99,9 @@ compileButton.addEventListener("click", async () => {
   try {
     const outcome = await compileToPdf(editor.getSource());
     if (outcome.ok) {
-      latestPdf = outcome.pdf;
-      showPreview(outcome.pdf);
-      showFieldStatus(outcome.fields);
+      const outputPdf = await toOutputPdf(outcome);
+      latestPdf = outputPdf;
+      showPreview(outputPdf);
       downloadButton.disabled = false;
       downloadButton.removeAttribute("aria-disabled");
       downloadButton.title = "Download the compiled memo";

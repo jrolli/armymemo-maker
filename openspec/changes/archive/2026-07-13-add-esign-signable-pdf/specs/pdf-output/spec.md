@@ -1,10 +1,6 @@
 # pdf-output
 
-## Purpose
-
-Presenting the compiled result — in-page PDF preview and download of the produced PDF (signable when signature fields were applied, otherwise plain) with a sensible filename.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: PDF preview of the compiled memo
 After a successful compile, the output pane SHALL display the output PDF — the signable PDF when signature fields were applied, otherwise the plain compiled PDF — replacing the empty state or any prior result, rendered from the same bytes the user would download. Resources backing a replaced preview SHALL be released.
