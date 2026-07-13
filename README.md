@@ -37,6 +37,27 @@ The build is served from any plain static file host (for example
 `file://` is not supported: browsers block WASM subresource loading from disk,
 which upcoming Typst/esign features depend on.
 
+## Self-hosting
+
+Every build is packaged into a downloadable zip by the
+[Package site workflow](.github/workflows/package-site.yml), so you can run
+your own instance without installing a Node toolchain:
+
+- **Releases (stable):** version tags publish the zip as an asset on the
+  [GitHub release](https://github.com/jrolli/armymemo-maker/releases) — a
+  login-free, durable download.
+- **Workflow artifacts (per-commit):** every push to `main` uploads the same
+  zip as a workflow artifact — useful for testing unreleased commits, but
+  artifacts expire and downloading them requires a GitHub login.
+
+The zip contains `site/` (the exact `dist/` a local build produces),
+`README-SELF-HOSTING.md` with serving instructions, and `BUILD_INFO` with the
+source commit, tag (if any), and build date. Unpack it and serve `site/` at
+the root of an origin with any plain static file server (for example
+`python -m http.server -d site`). Serve at the origin root — the app uses
+absolute `/` asset URLs and a service worker scoped to `/` — and use https or
+localhost for offline/PWA support; `file://` is unsupported.
+
 ## Development
 
 ```sh

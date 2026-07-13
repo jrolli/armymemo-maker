@@ -1,0 +1,92 @@
+name: Package site
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      zip-name: ${{ steps.package.outputs.zip_name }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site (runs typecheck, local-only, precache, and asset-size checks)
+        run: npm run build
+
+      - name: Package self-hosting zip
+        id: package
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            version="$(git rev-parse --short "${GITHUB_SHA}")"
+          fi
+          zip_name="memo-army-dev-site-${version}.zip"
+          stage="$(mktemp -d)"
+          mkdir "${stage}/site"
+          cp -R dist/. "${stage}/site/"
+          cp README-SELF-HOSTING.md "${stage}/"
+          {
+            echo "commit: ${GITHUB_SHA}"
+            if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+              echo "tag: ${GITHUB_REF_NAME}"
+            fi
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > "${stage}/BUILD_INFO"
+          (cd "${stage}" && zip -r -q "${GITHUB_WORKSPACE}/${zip_name}" site README-SELF-HOSTING.md BUILD_INFO)
+          echo "zip_name=${zip_name}" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.zip_name }}
+          path: ${{ steps.package.outputs.zip_name }}
+          if-no-files-found: error
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download packaged zip
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.zip-name }}
+
+      - name: Create release and attach zip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ZIP_NAME: ${{ needs.build.outputs.zip-name }}
+        run: |
+          set -euo pipefail
+          if gh release view "${GITHUB_REF_NAME}" > /dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" "${ZIP_NAME}" --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" "${ZIP_NAME}" \
+              --verify-tag \
+              --title "${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi
