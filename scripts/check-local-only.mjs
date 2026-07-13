@@ -21,6 +21,10 @@ const ALLOWED_PREFIXES = [
   "https://cdn.jsdelivr.net/gh/typst/typst-assets@",
   "https://cdn.jsdelivr.net/gh/typst/typst-dev-assets@",
   "https://packages.typst.org/preview/",
+  // Footer source-repository link (AGPL source offer). Navigation-only
+  // <a href> in index.html — the app never fetches it, and the CSP does not
+  // govern user-initiated link navigation, so no CSP change is needed.
+  "https://github.com/jrolli/armymemo-maker",
 ];
 
 const TEXT_EXTENSIONS = new Set([

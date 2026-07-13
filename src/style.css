@@ -189,10 +189,30 @@ body {
   cursor: not-allowed;
 }
 
+.footer-meta {
+  display: flex;
+  align-items: baseline;
+  column-gap: 1rem;
+  row-gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
 .local-note {
   margin: 0;
   font-size: 0.8rem;
   color: var(--ink-muted);
+}
+
+.repo-link {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.repo-link:hover,
+.repo-link:focus-visible {
+  color: var(--accent);
 }
 
 /* Narrow viewports: stack panes vertically; nothing may clip or overlap. */
