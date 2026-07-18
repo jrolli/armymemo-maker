@@ -39,29 +39,23 @@
         <div class="output-body">
           <div id="output-empty" class="empty-state">
             <p><strong>Nothing compiled yet.</strong></p>
-            <p>The PDF preview will appear here once compilation support arrives.</p>
+            <p>Press Compile to render your memo. The first compile loads the Typst engine (~28&nbsp;MB, served locally) and takes a moment.</p>
           </div>
+          <pre id="diagnostics" class="diagnostics" hidden></pre>
+          <iframe id="pdf-preview" class="pdf-preview" title="Compiled memo PDF preview" hidden></iframe>
         </div>
       </section>
     </main>
 
     <footer class="action-bar">
       <div class="actions">
-        <button
-          id="compile-button"
-          type="button"
-          disabled
-          aria-disabled="true"
-          title="Not available yet — Typst compilation arrives in a future update"
-        >
-          Compile
-        </button>
+        <button id="compile-button" type="button">Compile</button>
         <button
           id="download-button"
           type="button"
           disabled
           aria-disabled="true"
-          title="Not available yet — PDF download arrives in a future update"
+          title="Compile the memo first"
         >
           Download PDF
         </button>

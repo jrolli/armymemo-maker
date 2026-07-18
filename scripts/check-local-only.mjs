@@ -12,6 +12,15 @@ const DIST = new URL("../dist/", import.meta.url).pathname;
 // URL-shaped strings that are identifiers, not network fetches.
 const ALLOWED_PREFIXES = [
   "http://www.w3.org/", // XML/SVG/XHTML namespace URIs
+  // Dead-code URL strings bundled from vendored typst.ts: its default font
+  // CDN and default package registry. Both defaults are replaced at runtime
+  // (disableDefaultFontAssets + local armymemo package fetcher), and the
+  // production CSP blocks these origins outright. Live enforcement is the
+  // CSP plus the Playwright same-origin network assertions — this scan
+  // cannot tell a dead string from a fetched one.
+  "https://cdn.jsdelivr.net/gh/typst/typst-assets@",
+  "https://cdn.jsdelivr.net/gh/typst/typst-dev-assets@",
+  "https://packages.typst.org/preview/",
 ];
 
 const TEXT_EXTENSIONS = new Set([

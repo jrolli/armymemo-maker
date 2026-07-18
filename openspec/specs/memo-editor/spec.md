@@ -29,15 +29,19 @@ The editor SHALL be pre-filled on first load with a minimal, valid armymemo exam
 - **THEN** the editor contains only the user's source with no residue of the example
 
 ### Requirement: Two-pane layout with action bar
-The page SHALL present the editor pane and an output pane side by side on desktop-width viewports, together with an action bar containing Compile and Download actions. While no downstream pipeline exists, both actions SHALL be rendered in a visibly disabled state and the output pane SHALL show an empty-state message; the layout SHALL remain usable (no overlapping or clipped content) at narrow viewport widths.
+The page SHALL present the editor pane and an output pane side by side on desktop-width viewports, together with an action bar containing Compile and Download actions. Compile SHALL be enabled whenever the editor holds source and no compile is in progress, and SHALL show a busy state (and be inactive) while a compile runs. Download SHALL be disabled until a compile has succeeded. The layout SHALL remain usable (no overlapping or clipped content) at narrow viewport widths.
 
 #### Scenario: Desktop layout
 - **WHEN** the page is viewed at a desktop viewport width
 - **THEN** the editor pane and output pane are visible simultaneously alongside an action bar with Compile and Download controls
 
-#### Scenario: Actions disabled in shell
-- **WHEN** no compilation capability is present in the build
-- **THEN** Compile and Download are visibly disabled, cannot be activated by mouse or keyboard, and indicate that the capability is not yet available
+#### Scenario: Compile is live
+- **WHEN** the page has loaded with the starter example present
+- **THEN** the Compile action is enabled and activating it starts a compilation
+
+#### Scenario: Busy state during compile
+- **WHEN** a compilation is in progress
+- **THEN** the Compile action is inactive and visibly indicates work in progress until the compile finishes
 
 #### Scenario: Narrow viewport does not break
 - **WHEN** the page is viewed at a narrow (mobile-width) viewport

@@ -10,6 +10,14 @@ import { defineConfig, type Plugin } from "vite";
 // not a weakening of the local-only contract.
 const PRODUCTION_CSP = [
   "default-src 'self'",
+  // 'unsafe-eval' is required by the vendored Typst compiler WASM: its
+  // js_sys::global() fallback evaluates Function("return this") at startup
+  // (verified via securitypolicyviolation events; 'wasm-unsafe-eval' alone is
+  // insufficient). 'unsafe-eval' also covers the WASM compilation itself.
+  // Script *sources* remain 'self'; no external origin is ever loadable.
+  "script-src 'self' 'unsafe-eval'",
+  // The PDF preview iframe is a blob: document of locally-compiled bytes.
+  "frame-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",
