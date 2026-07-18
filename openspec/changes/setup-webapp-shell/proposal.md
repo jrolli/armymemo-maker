@@ -10,7 +10,7 @@ memo.army.dev needs a place to live before any Typst or PDF work can happen: a f
 - Add the core page layout: a Typst source editor pane (textarea or code editor) and an output/preview pane, plus a disabled-for-now action area (Compile / Download) that later changes will wire up.
 - Pre-fill the editor with a minimal example armymemo document so a first-time visitor sees the expected input shape.
 - Establish the local-only guarantee: no network calls at runtime beyond fetching the site's own static assets; no analytics, no third-party CDNs — all dependencies vendored into the bundle.
-- Add a local dev server workflow and a production build that can be served from any static host or opened from disk.
+- Add a local dev server workflow and a production build that can be served from any static host, including a trivial local static file server (e.g., `python -m http.server`). Opening the build directly via `file://` is out of scope: browsers block WASM subresource loading from disk, and later changes depend on WASM modules.
 
 ## Capabilities
 
