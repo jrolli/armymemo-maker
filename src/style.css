@@ -209,7 +209,8 @@ body {
   flex-wrap: wrap;
 }
 
-.local-note {
+.local-note,
+.last-updated {
   margin: 0;
   font-size: 0.8rem;
   color: var(--ink-muted);

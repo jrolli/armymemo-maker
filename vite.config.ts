@@ -1,4 +1,5 @@
 import { defineConfig, type Plugin } from "vite";
+import { execSync } from "node:child_process";
 import { gzipSync } from "node:zlib";
 
 // Production CSP: everything must come from the site's own origin.
@@ -42,6 +43,33 @@ function injectProductionCsp(): Plugin {
           },
         ],
       };
+    },
+  };
+}
+
+// Footer "Updated YYYY-MM-DD" date (design D1/D2 of add-footer-last-updated):
+// the HEAD committer date, NOT the build clock — the service-worker cache name
+// hashes every emitted byte, so a clock-derived date would make each rebuild
+// look like a new version and show users an empty update prompt. Runs in dev
+// too (no `apply` restriction) so the placeholder can never reach a browser.
+function lastUpdatedDate(): string {
+  try {
+    return execSync("git log -1 --format=%cs", { encoding: "utf8" }).trim();
+  } catch {
+    console.warn(
+      "inject-last-updated: git commit date unavailable — falling back to the current date; " +
+        "this build is not byte-reproducible.",
+    );
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
+function injectLastUpdated(): Plugin {
+  const date = lastUpdatedDate();
+  return {
+    name: "inject-last-updated",
+    transformIndexHtml(html) {
+      return html.replaceAll("__LAST_UPDATED__", date);
     },
   };
 }
@@ -100,7 +128,7 @@ function compressCompilerWasm(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [injectProductionCsp(), compressCompilerWasm()],
+  plugins: [injectProductionCsp(), injectLastUpdated(), compressCompilerWasm()],
   // The compile worker's module graph (typst.ts) uses dynamic imports, which
   // the default iife worker format rejects (design D4 of add-compile-worker).
   worker: { format: "es" },
