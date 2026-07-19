@@ -30,6 +30,17 @@ The compiler SHALL resolve `#import "@preview/armymemo:0.1.0"` from a package ar
 - **WHEN** the source imports a package that is not vendored (e.g., `@preview/example:0.1.0`)
 - **THEN** compilation fails and the diagnostics identify the package that could not be resolved
 
+### Requirement: Vendored armymemo package provenance
+The armymemo package archive SHALL be vendored in the repository as a tarball regenerated from a pinned upstream commit by a maintenance script, and the tarball SHALL contain exactly the package payload of that commit (`typst.toml`, `lib.typ`, the seal images, and the upstream `LICENSE`). Regenerating the tarball SHALL be an explicit script action that may use the network; the app build and runtime SHALL use only the committed tarball. Updating the vendored package SHALL consist of changing the pinned commit and regenerating the tarball, keeping the pin, the tarball, and the starter example's pinned `#import` version consistent.
+
+#### Scenario: Refreshed tarball reproduces the pinned commit
+- **WHEN** the maintenance script runs after its pinned commit is updated
+- **THEN** the regenerated tarball contains the package payload of exactly that commit, including the upstream `LICENSE`, under the version declared by that commit's `typst.toml`
+
+#### Scenario: Build stays hermetic across a package update
+- **WHEN** the app is built from a clean checkout after a vendored-package update, with no network access beyond the static server
+- **THEN** the build succeeds using only the committed tarball, and the starter example compiles against it
+
 ### Requirement: Vendored fonts
 The compiler SHALL use fonts vendored in the app bundle, SHALL NOT fetch fonts from external origins at runtime, and SHALL compile armymemo documents with the vendored Liberation Sans family via armymemo's font input rather than by modifying user source.
 

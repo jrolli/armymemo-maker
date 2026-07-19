@@ -14,7 +14,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
-const COMMIT = "f7b04a453fe787dcbdceaf779eb7ca12c50438f9";
+const COMMIT = "7479f2b7b23b566b988047db407182cb66e35a60";
 const VERSION = "0.1.0";
 // The package payload: everything lib.typ needs at compile time, plus license.
 const FILES = ["typst.toml", "lib.typ", "DOD_Seal_BW.png", "DOW_Seal_BW.png", "LICENSE"];
