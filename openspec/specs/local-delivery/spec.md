@@ -9,7 +9,7 @@ The static, local-only delivery model for memo.army.dev — self-contained bundl
 - *Self-contained static bundle* — vendored assets (`vendor/`, `src/assets/fonts/`) and the Vite build (`vite.config.ts`, `assetsInlineLimit: 0`); browser verification suites exercise the app from a bare static file server.
 - *No runtime network traffic beyond own origin* — the `injectProductionCsp` plugin in `vite.config.ts` plus `scripts/check-local-only.mjs`, which fails `npm run build` on any external-origin reference in `dist/`.
 - *Local development workflow* — the `dev`/`build`/`preview` scripts in `package.json`, documented in `README.md`.
-- *Offline availability after first visit* — `scripts/generate-sw.mjs` (build-generated service worker), `scripts/check-precache.mjs` (build-failing completeness check), and the production-only registration in `src/main.ts`; verified with the network fully unreachable.
+- *Offline availability after first visit* — `scripts/generate-sw.mjs` (build-generated service worker), `scripts/check-precache.mjs` (build-failing completeness check), and the production-only registration plus update-button wiring in `src/main.ts` (waiting-worker detection, `SKIP_WAITING` promotion, single reload on `controllerchange`); verified with the network fully unreachable.
 - *Static-host per-file size limit* — `scripts/check-asset-size.mjs`, which fails `npm run build` on any `dist/` file of 25 MiB or larger, and the `compressCompilerWasm` plugin in `vite.config.ts`, which ships the Typst compiler WASM compressed for in-browser decoding.
 
 Hosting the built `dist/` at memo.army.dev over https is deliberately outside this spec's scope: the requirements are written against "any plain static file server" so the contract is provable without reference to any particular host.
@@ -56,7 +56,7 @@ The repository SHALL provide documented commands for local development with hot 
 - **THEN** the exact production bundle from `dist/` is served locally for inspection
 
 ### Requirement: Offline availability after first visit
-When served over a secure context (https or localhost), the app SHALL register a same-origin service worker that precaches the complete production bundle during the first visit, and SHALL thereafter load and function fully — editing, compiling, signature-field application, preview, and download — with no network connectivity. The precache asset list SHALL be generated from the actual build output, and the build SHALL fail if any file in `dist/` is not covered by it. After a redeploy, the next online visit SHALL fetch the new version in the background and serve it from the following load, without user-facing update prompts. The app SHALL be installable as a standalone app via a web application manifest with a same-origin icon.
+When served over a secure context (https or localhost), the app SHALL register a same-origin service worker that precaches the complete production bundle during the first visit, and SHALL thereafter load and function fully — editing, compiling, signature-field application, preview, and download — with no network connectivity. The precache asset list SHALL be generated from the actual build output, and the build SHALL fail if any file in `dist/` is not covered by it. After a redeploy, an online visit SHALL fetch and precache the new version in the background without disturbing the running page; once the new version is fully precached, the app SHALL reveal an update control, and activating that control SHALL switch to the new version by promoting the new service worker and reloading the page exactly once. The app SHALL NOT reload the page or switch versions without the user activating the control, and the control SHALL NOT appear on a first visit's initial install. The app SHALL be installable as a standalone app via a web application manifest with a same-origin icon.
 
 #### Scenario: App works offline after one visit
 - **WHEN** a user loads the app once over a secure context, the service worker finishes precaching, and the browser then goes fully offline
@@ -66,9 +66,21 @@ When served over a secure context (https or localhost), the app SHALL register a
 - **WHEN** a production build produces a file in `dist/` that the service worker's precache list does not cover
 - **THEN** the build fails, naming the uncovered file
 
-#### Scenario: Redeploy reaches users without prompts
-- **WHEN** a new version is deployed and a user with the old version cached visits while online
-- **THEN** the new version is fetched in the background and served on the following load, with no update prompt
+#### Scenario: Redeploy surfaces an update control
+- **WHEN** a new version is deployed and a user with the old version cached visits or refreshes while online
+- **THEN** the new version is fetched and precached in the background, the running page continues on the cached version undisturbed, and an update control becomes visible once the new version is ready
+
+#### Scenario: User applies the update
+- **WHEN** the update control is visible and the user activates it
+- **THEN** the new service worker takes control, the page reloads exactly once, and subsequent loads — including offline loads — serve the new version
+
+#### Scenario: No unsolicited reload
+- **WHEN** a new version finishes installing while the user is working in the app
+- **THEN** the page does not reload, navigate, or switch versions until the user activates the update control
+
+#### Scenario: First visit shows no update control
+- **WHEN** a user visits for the first time and the initial service worker installs and precaches the bundle
+- **THEN** no update control appears
 
 #### Scenario: Installable manifest
 - **WHEN** the app is served in production

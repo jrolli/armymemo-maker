@@ -183,10 +183,61 @@ void requestCompile();
 // dev serves no sw.js — and after load so registration never competes with
 // the first compile's WASM fetch. updateViaCache keeps the host's HTTP cache
 // from wedging sw.js updates.
+//
+// Update surfacing (add-sw-update-button): a byte-different sw.js installs its
+// new precache and then waits; the button reveals that waiting worker and the
+// click is the only path that promotes it (SKIP_WAITING) and reloads (on
+// controllerchange, listener attached only here so no other path can reload).
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).catch(() => {
+  const updateButton = element("update-button", HTMLButtonElement);
+
+  const showUpdateButton = (worker: ServiceWorker) => {
+    updateButton.hidden = false;
+    updateButton.onclick = () => {
+      navigator.serviceWorker.addEventListener(
+        "controllerchange",
+        () => window.location.reload(),
+        { once: true },
+      );
+      worker.postMessage("SKIP_WAITING");
+    };
+  };
+
+  window.addEventListener("load", async () => {
+    let reg: ServiceWorkerRegistration;
+    try {
+      reg = await navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
+    } catch {
       // Registration failure just means no offline capability this visit.
+      return;
+    }
+
+    // The controller check keeps a first visit's initial install from being
+    // mistaken for an update — only a page already controlled by an old
+    // worker can have a *new* version waiting.
+    if (reg.waiting && navigator.serviceWorker.controller) {
+      showUpdateButton(reg.waiting);
+    }
+    reg.addEventListener("updatefound", () => {
+      const worker = reg.installing;
+      worker?.addEventListener("statechange", () => {
+        if (worker.state === "installed" && navigator.serviceWorker.controller) {
+          showUpdateButton(worker);
+        }
+      });
+    });
+
+    // Long-lived tabs and installed windows rarely navigate, so they would
+    // never hit the browser's on-navigation sw.js check; re-check when the
+    // window regains visibility, at most hourly (design D4).
+    let lastUpdateCheck = Date.now();
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && Date.now() - lastUpdateCheck > 60 * 60 * 1000) {
+        lastUpdateCheck = Date.now();
+        void reg.update().catch(() => {
+          // Offline or transient failure — the next check will try again.
+        });
+      }
     });
   });
 }

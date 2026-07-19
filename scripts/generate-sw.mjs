@@ -52,6 +52,15 @@ self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
 });
 
+// Update promotion (design D2 of add-sw-update-button): the page posts
+// SKIP_WAITING from the update button's click handler; nothing else may
+// promote a waiting worker.
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((names) =>
