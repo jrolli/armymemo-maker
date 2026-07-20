@@ -142,6 +142,7 @@ export default defineConfig({
       input: {
         main: new URL("./index.html", import.meta.url).pathname,
         acknowledgements: new URL("./acknowledgements.html", import.meta.url).pathname,
+        convert: new URL("./convert.html", import.meta.url).pathname,
       },
     },
   },

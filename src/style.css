@@ -320,6 +320,77 @@ body {
   border-radius: 4px;
 }
 
+/* Conversion page (convert.html — add-file-compile-page). */
+.convert-main {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr auto auto;
+  align-content: start;
+  max-width: 52rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.drop-zone {
+  display: grid;
+  place-content: center;
+  gap: 0.5rem;
+  text-align: center;
+  min-height: 16rem;
+  padding: 2rem;
+  background: var(--panel);
+  border: 2px dashed var(--border);
+  border-radius: 6px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.drop-zone:hover,
+.drop-zone--over,
+.drop-zone:has(.visually-hidden-input:focus-visible) {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.drop-zone--busy {
+  cursor: progress;
+  border-style: solid;
+}
+
+.drop-zone-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.drop-zone-hint {
+  font-size: 0.85rem;
+}
+
+/* Kept in the layout (not display:none) so the input stays focusable and the
+   file chooser opens from keyboard activation of the label. */
+.visually-hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.convert-status {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+
+.convert-status--warn {
+  color: #92400e;
+}
+
+.convert-diagnostics {
+  align-self: start;
+}
+
 /* Narrow viewports: stack panes vertically; nothing may clip or overlap. */
 @media (max-width: 800px) {
   .app-main {
