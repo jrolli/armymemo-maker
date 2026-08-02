@@ -16,10 +16,10 @@ The app SHALL compile the editor's current Typst source to PDF bytes entirely in
 - **THEN** the only network requests observable are same-origin fetches of the app's own static assets (compiler WASM, fonts, vendored package)
 
 ### Requirement: Offline armymemo package resolution
-The compiler SHALL resolve `#import "@preview/armymemo:0.1.0"` from a package archive vendored in the app bundle, without contacting any package registry. Resolution SHALL succeed regardless of whether the delivery path preserves the archive's compression layer or strips it in transit (as servers that infer `Content-Encoding` from the `.gz` extension do, including the Vite dev server): the app SHALL detect which form it received and restore the form the compiler requires. Imports of packages that are not vendored SHALL fail with a diagnostic that names the unresolvable package.
+The compiler SHALL resolve `#import "@preview/armymemo:0.2.1"` from a package archive vendored in the app bundle, without contacting any package registry. Resolution SHALL succeed regardless of whether the delivery path preserves the archive's compression layer or strips it in transit (as servers that infer `Content-Encoding` from the `.gz` extension do, including the Vite dev server): the app SHALL detect which form it received and restore the form the compiler requires. Imports of packages that are not vendored SHALL fail with a diagnostic that names the unresolvable package.
 
 #### Scenario: Starter example compiles through the vendored package
-- **WHEN** the user compiles the pre-filled starter example (which imports `@preview/armymemo:0.1.0`)
+- **WHEN** the user compiles the pre-filled starter example (which imports `@preview/armymemo:0.2.1`)
 - **THEN** compilation succeeds using only the vendored package archive, with no requests to packages.typst.org or any other external origin
 
 #### Scenario: Starter example compiles in the dev server

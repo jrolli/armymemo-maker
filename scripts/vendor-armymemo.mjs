@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Regenerate vendor/armymemo-0.1.0.tar.gz from a pinned commit of
+ * Regenerate vendor/armymemo-0.2.1.tar.gz from a pinned commit of
  * github.com/jrolli/armymemo. Network is used here, at maintenance time only —
  * never at build or runtime (the tarball is committed; see design D3).
  *
@@ -14,8 +14,8 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-const COMMIT = "3388e8fc2a1573eda635d3faee9be4390ede68d0";
-const VERSION = "0.1.0";
+const COMMIT = "f649d1b4dc3c0bab68eab652ff0c78d128f5626e";
+const VERSION = "0.2.1";
 // The package payload: everything lib.typ needs at compile time, plus license.
 // lib.typ imports the eform helpers from armymemo's own vendored copy, so the
 // tarball must carry that subtree too.

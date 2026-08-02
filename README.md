@@ -71,10 +71,10 @@ npm run preview    # serve the production bundle locally
 
 Everything the compiler needs ships in the bundle:
 
-- **armymemo package** — `vendor/armymemo-0.1.0.tar.gz` (AGPL), regenerated
+- **armymemo package** — `vendor/armymemo-0.2.1.tar.gz` (AGPL), regenerated
   from a pinned upstream commit by `node scripts/vendor-armymemo.mjs`. The
   starter example in [src/assets/example.typ](src/assets/example.typ) imports
-  `@preview/armymemo:0.1.0`; bump the example import, the vendor script's
+  `@preview/armymemo:0.2.1`; bump the example import, the vendor script's
   pinned commit, and the tarball together. Only vendored packages resolve —
   other `@preview` imports fail with a diagnostic, by design.
 - **Liberation Sans** — `src/assets/fonts/` (SIL OFL, license included),

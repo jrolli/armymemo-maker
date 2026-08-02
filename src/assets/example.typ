@@ -1,4 +1,4 @@
-#import "@preview/armymemo:0.1.0": memo
+#import "@preview/armymemo:0.2.1": memo
 
 #show: memo.with(
   office-symbol: "ATZB-CD-E",

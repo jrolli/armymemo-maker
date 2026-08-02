@@ -43,11 +43,11 @@
     {
       "id": "armymemo",
       "name": "armymemo",
-      "version": "0.1.0",
+      "version": "0.2.1",
       "license": "AGPL-3.0-or-later",
       "source": "https://github.com/jrolli/armymemo",
       "copyright": ["Copyright (C) the armymemo authors (jschless, jrolli)"],
-      "description": "AR 25-50 Army memorandum template for Typst, vendored as vendor/armymemo-0.1.0.tar.gz (its LICENSE ships inside the tarball)."
+      "description": "AR 25-50 Army memorandum template for Typst, vendored as vendor/armymemo-0.2.1.tar.gz (its LICENSE ships inside the tarball)."
     },
     {
       "id": "liberation-fonts",

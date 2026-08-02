@@ -10,7 +10,7 @@ import { $typst, TypstSnippet } from "@myriaddreamin/typst.ts/contrib/snippet";
 import { CompileFormatEnum } from "@myriaddreamin/typst.ts/compiler";
 import { MemoryAccessModel } from "@myriaddreamin/typst.ts/fs/memory";
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
-import armymemoTarballUrl from "../vendor/armymemo-0.1.0.tar.gz?url";
+import armymemoTarballUrl from "../vendor/armymemo-0.2.1.tar.gz?url";
 import fontSansUrl from "./assets/fonts/LiberationSans-Regular.ttf?url";
 import fontSansBoldUrl from "./assets/fonts/LiberationSans-Bold.ttf?url";
 import fontSansItalicUrl from "./assets/fonts/LiberationSans-Italic.ttf?url";
@@ -132,7 +132,7 @@ async function initOnce(): Promise<void> {
       TypstSnippet.preloadFonts([fontSansUrl, fontSansBoldUrl, fontSansItalicUrl, fontSansBoldItalicUrl]),
       TypstSnippet.withAccessModel(accessModel),
       TypstSnippet.fetchPackageBy(accessModel, (spec) =>
-        spec.name === "armymemo" && spec.version === "0.1.0" ? armymemoTarball : undefined,
+        spec.name === "armymemo" && spec.version === "0.2.1" ? armymemoTarball : undefined,
       ),
     );
 
