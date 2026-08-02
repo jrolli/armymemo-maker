@@ -68,7 +68,13 @@ async function toOutputPdf(
   }
   const names = extraction.fields.map((field) => field.name).join(", ");
   const plural = extraction.fields.length === 1 ? "" : "s";
-  const summary = `${extraction.fields.length} signature field${plural}: ${names}`;
+  // Signature-centric wording while that's all armymemo emits, generic once
+  // other field types appear (design D4 of update-armymemo-eform).
+  const allSignature = extraction.fields.every(
+    (field) => field.type === undefined || field.type === "signature",
+  );
+  const noun = allSignature ? "signature field" : "form field";
+  const summary = `${extraction.fields.length} ${noun}${plural}: ${names}`;
   try {
     const signable = await addFields(outcome.pdf, extraction.fields);
     return { pdf: signable, message: `${summary} — downloaded a signable PDF`, warn: false };
@@ -76,7 +82,7 @@ async function toOutputPdf(
     const message = error instanceof Error ? error.message : String(error);
     return {
       pdf: outcome.pdf,
-      message: `${summary} — esign failed: ${message} — downloaded the plain PDF`,
+      message: `${summary} — eform failed: ${message} — downloaded the plain PDF`,
       warn: true,
     };
   }

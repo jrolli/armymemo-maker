@@ -1,15 +1,15 @@
 /**
  * Dedicated compile worker (design D1 of add-compile-worker): hosts the whole
- * WASM pipeline — Typst compile + field query + esign field application — so
+ * WASM pipeline — Typst compile + field query + eform field application — so
  * the main thread never blocks on it. One instance; the page's single-flight
  * gate guarantees at most one request is in flight.
  */
-import { compileToPdf, type SignatureField } from "./typst-service";
-import { addFields } from "./esign-service";
+import { compileToPdf, type FormField } from "./typst-service";
+import { addFields } from "./eform-service";
 
 export type WorkerCall =
   | { op: "compile"; source: string }
-  | { op: "add-fields"; pdf: Uint8Array; fields: SignatureField[] };
+  | { op: "add-fields"; pdf: Uint8Array; fields: FormField[] };
 
 export type WorkerRequest = WorkerCall & { id: number };
 

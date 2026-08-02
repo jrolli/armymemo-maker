@@ -7,7 +7,7 @@ import { gzipSync } from "node:zlib";
 // uses HMR websockets that a strict policy would fight; the local-only
 // guarantee applies to the delivered bundle, which check-local-only.mjs and
 // this header enforce together.
-// NOTE for later changes: WASM (Typst compiler, esign) will require adding
+// NOTE for later changes: WASM (Typst compiler, eform) will require adding
 // `'wasm-unsafe-eval'` to script-src. That is an expected, documented edit,
 // not a weakening of the local-only contract.
 const PRODUCTION_CSP = [

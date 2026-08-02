@@ -1,11 +1,12 @@
-/* @ts-self-types="./esign.d.ts" */
+/* @ts-self-types="./eform.d.ts" */
 
 /**
- * Add all signature fields listed in a JSON manifest to a PDF.
+ * Add all form fields (signature, text, checkbox) listed in a JSON manifest
+ * to a PDF.
  *
  * Takes the input PDF and the manifest as byte arrays (`Uint8Array` in JS)
  * and returns the finished PDF as a byte array. On any failure it throws a
- * JS `Error` whose message is esign's human-readable error text.
+ * JS `Error` whose message is eform's human-readable error text.
  * @param {Uint8Array} pdf
  * @param {Uint8Array} manifest
  * @returns {Uint8Array}
@@ -45,7 +46,7 @@ function __wbg_get_imports() {
     };
     return {
         __proto__: null,
-        "./esign_bg.js": import0,
+        "./eform_bg.js": import0,
     };
 }
 
@@ -188,7 +189,7 @@ async function __wbg_init(module_or_path) {
     }
 
     if (module_or_path === undefined) {
-        module_or_path = new URL('esign_bg.wasm', import.meta.url);
+        module_or_path = new URL('eform_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 

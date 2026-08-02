@@ -12,12 +12,22 @@
  */
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
-const COMMIT = "7479f2b7b23b566b988047db407182cb66e35a60";
+const COMMIT = "3388e8fc2a1573eda635d3faee9be4390ede68d0";
 const VERSION = "0.1.0";
 // The package payload: everything lib.typ needs at compile time, plus license.
-const FILES = ["typst.toml", "lib.typ", "DOD_Seal_BW.png", "DOW_Seal_BW.png", "LICENSE"];
+// lib.typ imports the eform helpers from armymemo's own vendored copy, so the
+// tarball must carry that subtree too.
+const FILES = [
+  "typst.toml",
+  "lib.typ",
+  "DOD_Seal_BW.png",
+  "DOW_Seal_BW.png",
+  "LICENSE",
+  "vendor/eform/typst.toml",
+  "vendor/eform/lib.typ",
+];
 
 const root = new URL("..", import.meta.url).pathname;
 const stage = join(root, `vendor/.stage-armymemo-${VERSION}`);
@@ -33,6 +43,7 @@ for (const file of FILES) {
     console.error(`vendor-armymemo: ${response.status} fetching ${url}`);
     process.exit(1);
   }
+  mkdirSync(dirname(join(stage, file)), { recursive: true });
   writeFileSync(join(stage, file), Buffer.from(await response.arrayBuffer()));
   console.log(`fetched ${file}`);
 }

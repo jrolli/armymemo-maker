@@ -26,18 +26,18 @@
       }
     },
     {
-      "id": "esign",
-      "name": "esign",
-      "version": "0.2.0",
-      "commit": "d777d66202dc1aac29e2aaae6eb8535aab0e649c",
+      "id": "eform",
+      "name": "eform",
+      "version": "0.4.0",
+      "commit": "a7db0d43e66e0162cf0b5ffd5ae05140133b0fc6",
       "license": "AGPL-3.0-or-later",
-      "source": "https://github.com/jrolli/esign",
+      "source": "https://github.com/jrolli/eform",
       "copyright": ["Copyright (C) John E. Rollinson (jrolli)"],
-      "description": "The esign WASM module that places PDF signature form fields (vendor/esign/).",
+      "description": "The eform WASM module (formerly esign) that places PDF form fields — signature, text, and checkbox (vendor/eform/).",
       "crates": {
-        "file": "esign-crates.json",
-        "heading": "Rust crates compiled into the esign WASM",
-        "note": "Dependency closure of the esign crate (feature wasm, target wasm32-unknown-unknown) at the pinned commit, per its Cargo.lock."
+        "file": "eform-crates.json",
+        "heading": "Rust crates compiled into the eform WASM",
+        "note": "Dependency closure of the eform crate (feature wasm, target wasm32-unknown-unknown) at the pinned commit, per its Cargo.lock."
       }
     },
     {

@@ -5,7 +5,7 @@
  * bundle. The worker spawns lazily on first use; a worker-level error rejects
  * everything pending and the next call respawns a fresh worker.
  */
-import type { CompileOutcome, SignatureField } from "./typst-service";
+import type { CompileOutcome, FormField } from "./typst-service";
 import type { WorkerCall, WorkerResponse } from "./compile-worker";
 
 interface Pending {
@@ -59,6 +59,6 @@ export function compileToPdf(source: string): Promise<CompileOutcome> {
   return request({ op: "compile", source }) as Promise<CompileOutcome>;
 }
 
-export function addFields(pdf: Uint8Array, fields: SignatureField[]): Promise<Uint8Array> {
+export function addFields(pdf: Uint8Array, fields: FormField[]): Promise<Uint8Array> {
   return request({ op: "add-fields", pdf, fields }) as Promise<Uint8Array>;
 }

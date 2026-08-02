@@ -5,7 +5,7 @@
  * longer matches what the bundle actually ships, naming the stale component:
  *
  *   - typst.ts version   vs the @myriaddreamin/* pins in package.json
- *   - esign commit        vs vendor/esign/PROVENANCE
+ *   - eform commit        vs vendor/eform/PROVENANCE
  *   - armymemo version    vs the vendor/armymemo-<version>.tar.gz tarball
  *   - font files          vs the .ttf files present in src/assets/fonts/
  *   - app version         vs package.json
@@ -38,13 +38,13 @@ const errors = [];
   }
 }
 
-// esign: the pinned commit in PROVENANCE must match the recorded commit.
+// eform: the pinned commit in PROVENANCE must match the recorded commit.
 {
-  const recorded = component("esign")?.commit;
-  const provenance = readFileSync(join(ROOT, "vendor/esign/PROVENANCE"), "utf8");
+  const recorded = component("eform")?.commit;
+  const provenance = readFileSync(join(ROOT, "vendor/eform/PROVENANCE"), "utf8");
   const shipped = provenance.match(/at commit ([0-9a-f]{40})/)?.[1];
   if (shipped !== recorded) {
-    errors.push(`esign: inventory records commit ${recorded} but vendor/esign/PROVENANCE says ${shipped}`);
+    errors.push(`eform: inventory records commit ${recorded} but vendor/eform/PROVENANCE says ${shipped}`);
   }
 }
 

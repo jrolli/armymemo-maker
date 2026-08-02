@@ -2,7 +2,7 @@ import "./style.css";
 import { createEditor } from "./editor";
 import { compileToPdf, addFields } from "./compile-client";
 import { deriveDownloadFilename } from "./download-filename";
-import type { SignatureField } from "./typst-service";
+import type { FormField } from "./typst-service";
 import { loadDraft, saveDraft } from "./draft-store";
 import exampleSource from "./assets/example.typ?raw";
 
@@ -30,10 +30,10 @@ editor.onChange(saveDraft);
 
 let latestPdf: Uint8Array | undefined;
 let latestFilename = "memo.pdf";
-let latestFields: SignatureField[] | undefined;
+let latestFields: FormField[] | undefined;
 let previewUrl: string | undefined;
 
-function showFieldStatus(text: string, options: { warn?: boolean; manifest?: SignatureField[] } = {}) {
+function showFieldStatus(text: string, options: { warn?: boolean; manifest?: FormField[] } = {}) {
   fieldStatus.classList.toggle("field-status--warn", options.warn === true);
   if (options.manifest) {
     fieldStatus.dataset.manifest = JSON.stringify(options.manifest);
@@ -44,8 +44,15 @@ function showFieldStatus(text: string, options: { warn?: boolean; manifest?: Sig
   fieldStatus.hidden = false;
 }
 
+// Status wording (design D4 of update-armymemo-eform): signature-centric
+// while that's all armymemo emits, generic once other field types appear.
+function fieldNoun(fields: { type?: string }[]): string {
+  const allSignature = fields.every((field) => field.type === undefined || field.type === "signature");
+  return allSignature ? "signature field" : "form field";
+}
+
 /**
- * Produce the output PDF and its status line: signable via esign when a valid
+ * Produce the output PDF and its status line: signable via eform when a valid
  * non-empty manifest exists, otherwise the plain compiled PDF with a visible
  * reason (design D3 of add-esign-signable-pdf).
  */
@@ -64,14 +71,14 @@ async function toOutputPdf(outcome: Extract<Awaited<ReturnType<typeof compileToP
   latestFields = extraction.fields;
   const names = extraction.fields.map((field) => field.name).join(", ");
   const plural = extraction.fields.length === 1 ? "" : "s";
-  const summary = `${extraction.fields.length} signature field${plural}: ${names}`;
+  const summary = `${extraction.fields.length} ${fieldNoun(extraction.fields)}${plural}: ${names}`;
   try {
     const signable = await addFields(outcome.pdf, extraction.fields);
     showFieldStatus(`${summary} — signable PDF ready`, { manifest: extraction.fields });
     return signable;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    showFieldStatus(`${summary} — esign failed: ${message} — download is the plain PDF`, {
+    showFieldStatus(`${summary} — eform failed: ${message} — download is the plain PDF`, {
       warn: true,
       manifest: extraction.fields,
     });

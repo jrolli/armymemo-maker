@@ -5,8 +5,8 @@ Type or paste [Typst](https://github.com/typst/typst) source using the
 [armymemo](https://github.com/jrolli/armymemo) package, compile it in-browser
 (via [typst.ts](https://github.com/Myriad-Dreamin/typst.ts) WebAssembly),
 preview the result, and download a PDF whose signature form fields — extracted
-from the template's `<esign-field>` metadata — are placed by
-[esign](https://github.com/jrolli/esign) WASM, ready to sign in Adobe Acrobat
+from the template's `<eform-field>` metadata — are placed by
+[eform](https://github.com/jrolli/eform) WASM, ready to sign in Adobe Acrobat
 or any standard PDF viewer.
 
 ## The local-only contract
@@ -35,7 +35,7 @@ or localhost).
 The build is served from any plain static file host (for example
 `python -m http.server -d dist`). Opening `dist/index.html` directly via
 `file://` is not supported: browsers block WASM subresource loading from disk,
-which upcoming Typst/esign features depend on.
+which upcoming Typst/eform features depend on.
 
 ## Self-hosting
 
@@ -88,18 +88,18 @@ Everything the compiler needs ships in the bundle:
   cap that static hosts like Cloudflare enforce on uploads.
   `npm run check:asset-size` fails the build if any `dist/` file reaches that
   cap (it runs as part of `npm run build`).
-- **esign WASM** — `vendor/esign/` (~1.2 MB), built from a pinned
-  [jrolli/esign](https://github.com/jrolli/esign) commit by
-  `scripts/vendor-esign.sh` (requires the Rust wasm32 target and a
-  wasm-bindgen-cli matching esign's Cargo.lock; see the script header).
-  Licensed AGPL-3.0-or-later (`vendor/esign/LICENSE`); provenance recorded
-  in `vendor/esign/PROVENANCE`.
+- **eform WASM** — `vendor/eform/` (~1 MB), built from a pinned
+  [jrolli/eform](https://github.com/jrolli/eform) commit by
+  `scripts/vendor-eform.sh` (requires the Rust wasm32 target and a
+  wasm-bindgen-cli matching eform's Cargo.lock; see the script header).
+  Licensed AGPL-3.0-or-later (`vendor/eform/LICENSE`); provenance recorded
+  in `vendor/eform/PROVENANCE`.
 
 ## Third-party notices (acknowledgements page)
 
 The bundle ships a static acknowledgements page (`/acknowledgements.html`,
 linked from the footer) listing every redistributed component — the typst.ts
-runtime and compiler WASM (Apache-2.0), the esign WASM (AGPL-3.0-or-later),
+runtime and compiler WASM (Apache-2.0), the eform WASM (AGPL-3.0-or-later),
 armymemo (AGPL-3.0-or-later), Liberation Sans (SIL OFL-1.1, license vendored
 at `src/assets/fonts/LICENSE`), the app itself, and the Rust crates compiled
 into the two WASM binaries — with copyright lines and full license texts.
@@ -114,7 +114,7 @@ only bundles the committed page and stays hermetic. When bumping a dependency:
   `node scripts/generate-acknowledgements.mjs --refresh` (requires git and
   cargo) — it re-derives the compiler WASM's crate inventory from the upstream
   tag matching the pinned version and regenerates the page.
-- **esign**: `scripts/vendor-esign.sh` refreshes `licenses/esign-crates.json`
+- **eform**: `scripts/vendor-eform.sh` refreshes `licenses/eform-crates.json`
   from the same pinned checkout that builds the WASM; then rerun
   `node scripts/generate-acknowledgements.mjs`.
 - **armymemo / fonts / app version**: update `licenses/manifest.json` to
@@ -137,5 +137,5 @@ external origin is loadable.
 This project is licensed under the
 [GNU Affero General Public License v3.0 or later](LICENSE)
 (AGPL-3.0-or-later), matching the licenses of the vendored
-[esign](https://github.com/jrolli/esign) and
+[eform](https://github.com/jrolli/eform) and
 [armymemo](https://github.com/jrolli/armymemo) components.

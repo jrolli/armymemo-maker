@@ -1,10 +1,17 @@
-# signable-pdf
+# signable-pdf (delta)
 
-## Purpose
+## RENAMED Requirements
 
-Producing the field-bearing (signable) PDF via the vendored eform WASM module — initialization, invocation with the compiled PDF and field manifest, and error handling with plain-PDF fallback.
+- FROM: `### Requirement: Signature fields applied via esign`
+- TO: `### Requirement: Form fields applied via eform`
 
-## Requirements
+- FROM: `### Requirement: Plain-PDF fallback on esign failure`
+- TO: `### Requirement: Plain-PDF fallback on eform failure`
+
+- FROM: `### Requirement: Vendored esign module`
+- TO: `### Requirement: Vendored eform module`
+
+## MODIFIED Requirements
 
 ### Requirement: Form fields applied via eform
 When a compile succeeds and yields a valid, non-empty field manifest, the app SHALL produce a signable PDF by applying the manifest to the compiled PDF with the vendored eform WASM module, entirely in the browser. The resulting document SHALL contain one form field per manifest entry — an unsigned signature field, a text field, or a checkbox per the entry's type — named and positioned per the manifest, with per-type options (including a signature entry's `lock` directive) carried into the PDF by eform.

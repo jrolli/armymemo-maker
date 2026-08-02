@@ -6,7 +6,7 @@
  * crates compiled into each WASM binary grouped by license, and every unique
  * license text exactly once.
  *
- * Maintenance-time tooling — like vendor-armymemo.mjs / vendor-esign.sh it
+ * Maintenance-time tooling — like vendor-armymemo.mjs / vendor-eform.sh it
  * MAY use the network; `npm run build` never runs it and only bundles the
  * committed page. Modes:
  *
@@ -25,8 +25,8 @@
  *     Cargo.lock with the same feature set upstream uses to build the
  *     published web package (--no-default-features --features web,misc — see
  *     packages/compiler/package.json "build" in the upstream repo). Requires
- *     git and cargo. The matching esign inventory is emitted by
- *     scripts/vendor-esign.sh from the same checkout that builds the WASM.
+ *     git and cargo. The matching eform inventory is emitted by
+ *     scripts/vendor-eform.sh from the same checkout that builds the WASM.
  *
  * After changing any input, rerun this script and commit the regenerated
  * acknowledgements.html — scripts/check-acknowledgements.mjs fails the build

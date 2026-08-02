@@ -1,10 +1,6 @@
-# signature-field-extraction
+# signature-field-extraction (delta)
 
-## Purpose
-
-Querying `<eform-field>` metadata from the compiled document, producing a validated eform-compatible field manifest, and reporting detected fields (or their absence) to the user.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Field manifest extraction after successful compile
 After every successful compile, the app SHALL query the compiled document for `<eform-field>` metadata using the same compilation inputs that produced the PDF, and SHALL assemble the results into a field manifest suitable for eform: an array of entries carrying the common placement keys `{name, page, x, y, w, h}` (PDF points, top-left origin, 1-indexed pages), an optional `type` key (`"signature"`, `"text"`, or `"checkbox"`; absent means signature), and any per-type option keys (e.g. a signature entry's `lock`). Extracted entries SHALL be passed to eform verbatim — keys beyond the common placement keys SHALL be preserved, not stripped, since eform is the authority on per-type schema validity.

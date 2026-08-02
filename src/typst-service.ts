@@ -16,18 +16,25 @@ import fontSansBoldUrl from "./assets/fonts/LiberationSans-Bold.ttf?url";
 import fontSansItalicUrl from "./assets/fonts/LiberationSans-Italic.ttf?url";
 import fontSansBoldItalicUrl from "./assets/fonts/LiberationSans-BoldItalic.ttf?url";
 
-/** One esign signature field: PDF points, top-left origin, 1-indexed page. */
-export interface SignatureField {
+/**
+ * One eform manifest entry: PDF points, top-left origin, 1-indexed page.
+ * `type` selects the field kind (absent means signature); per-type option
+ * keys (a signature's `lock`, text/checkbox options) ride along verbatim —
+ * eform is the authority on their validity (design D3).
+ */
+export interface FormField {
   name: string;
+  type?: "signature" | "text" | "checkbox";
   page: number;
   x: number;
   y: number;
   w: number;
   h: number;
+  [option: string]: unknown;
 }
 
 /** Extraction result: a valid manifest, or why none could be retained. */
-export type FieldExtraction = { fields: SignatureField[] } | { error: string };
+export type FieldExtraction = { fields: FormField[] } | { error: string };
 
 export type CompileOutcome =
   | { ok: true; pdf: Uint8Array; fields: FieldExtraction }
@@ -135,23 +142,28 @@ async function initOnce(): Promise<void> {
   return initPromise;
 }
 
+const FIELD_TYPES = ["signature", "text", "checkbox"];
+
 function validateManifest(raw: unknown): FieldExtraction {
   if (!Array.isArray(raw)) {
     return { error: `expected a list of fields, got ${typeof raw}` };
   }
-  const fields: SignatureField[] = [];
+  const fields: FormField[] = [];
   const seen = new Set<string>();
   for (const [index, entry] of raw.entries()) {
     const at = (name: string) => `field ${name ? `"${name}"` : `#${index + 1}`}`;
     if (typeof entry !== "object" || entry === null) {
       return { error: `${at("")} is not an object` };
     }
-    const { name, page, x, y, w, h } = entry as Record<string, unknown>;
+    const { name, type, page, x, y, w, h } = entry as Record<string, unknown>;
     if (typeof name !== "string" || name.length === 0) {
       return { error: `${at("")} has a missing or empty name` };
     }
     if (seen.has(name)) {
       return { error: `duplicate field name "${name}"` };
+    }
+    if (type !== undefined && (typeof type !== "string" || !FIELD_TYPES.includes(type))) {
+      return { error: `${at(name)} has unknown type ${JSON.stringify(type)}` };
     }
     if (typeof page !== "number" || !Number.isInteger(page) || page < 1) {
       return { error: `${at(name)} has invalid page ${JSON.stringify(page)}` };
@@ -163,7 +175,9 @@ function validateManifest(raw: unknown): FieldExtraction {
       return { error: `${at(name)} has non-positive size` };
     }
     seen.add(name);
-    fields.push({ name, page, x, y, w, h });
+    // Retain the entry verbatim: per-type option keys (lock, max_len, ...)
+    // must reach eform, which validates the full schema itself (design D3).
+    fields.push(entry as FormField);
   }
   return { fields };
 }
@@ -204,7 +218,7 @@ export async function compileToPdf(source: string): Promise<CompileOutcome> {
             if (paged.hasError) {
               throw new Error("query pass failed to compile the document");
             }
-            return world.query({ selector: "<esign-field>", field: "value" });
+            return world.query({ selector: "<eform-field>", field: "value" });
           },
         );
         fields = validateManifest(raw);

@@ -4,10 +4,11 @@ context: |
   memo.army.dev — a fully client-side, local-only static webapp for producing
   signable AR 25-50 Army memo PDFs. The user enters Typst source in the browser;
   the app compiles it with a WASM Typst compiler using the armymemo package
-  (github.com/jrolli/armymemo), extracts `<esign-field>` metadata
-  ({name, page, x, y, w, h} in PDF points, top-left origin) via Typst query,
-  and applies signature form fields with the esign WASM module
-  (github.com/jrolli/esign: add_fields(pdfBytes, manifestBytes) -> pdfBytes).
+  (github.com/jrolli/armymemo), extracts `<eform-field>` metadata
+  ({name, type?, page, x, y, w, h, ...per-type options} in PDF points,
+  top-left origin) via Typst query, and applies form fields — signature,
+  text, checkbox — with the eform WASM module (github.com/jrolli/eform,
+  formerly esign: add_fields(pdfBytes, manifestBytes) -> pdfBytes).
   Hard constraints: no backend, no runtime network calls beyond the site's own
   static assets, all dependencies vendored; document contents never leave the
   browser. Planned stack: TypeScript + Vite static build.

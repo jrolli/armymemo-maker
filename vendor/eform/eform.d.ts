@@ -2,11 +2,12 @@
 /* eslint-disable */
 
 /**
- * Add all signature fields listed in a JSON manifest to a PDF.
+ * Add all form fields (signature, text, checkbox) listed in a JSON manifest
+ * to a PDF.
  *
  * Takes the input PDF and the manifest as byte arrays (`Uint8Array` in JS)
  * and returns the finished PDF as a byte array. On any failure it throws a
- * JS `Error` whose message is esign's human-readable error text.
+ * JS `Error` whose message is eform's human-readable error text.
  */
 export function add_fields(pdf: Uint8Array, manifest: Uint8Array): Uint8Array;
 
