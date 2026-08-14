@@ -2,13 +2,17 @@
  * In-browser Typst compilation service (design D1/D3/D4/D7).
  *
  * Everything resolves same-origin: the compiler WASM, the Liberation Sans
- * fonts, and the vendored armymemo package archive. Only vendored packages
- * resolve — anything else fails with a normal "package not found" diagnostic,
+ * fonts, and the vendored armymemo package archive. The vendored package
+ * resolves under both `@local/armymemo` (the preferred form — armymemo is not
+ * on Typst Universe) and `@preview/armymemo` (compatibility with existing
+ * drafts); anything else fails with a normal "package not found" diagnostic,
  * which is the local-only contract working as intended.
  */
 import { $typst, TypstSnippet } from "@myriaddreamin/typst.ts/contrib/snippet";
 import { CompileFormatEnum } from "@myriaddreamin/typst.ts/compiler";
 import { MemoryAccessModel } from "@myriaddreamin/typst.ts/fs/memory";
+import { FetchPackageRegistry } from "@myriaddreamin/typst.ts/fs/package";
+import type { PackageResolveContext, PackageSpec } from "@myriaddreamin/typst.ts/internal.types";
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
 import armymemoTarballUrl from "../vendor/armymemo-0.2.1.tar.gz?url";
 import fontSansUrl from "./assets/fonts/LiberationSans-Regular.ttf?url";
@@ -120,6 +124,36 @@ async function fetchArmymemoTarball(): Promise<Uint8Array> {
   return new Uint8Array(await regzipped.arrayBuffer());
 }
 
+/**
+ * Package registry for the vendored armymemo archive (design D1/D2 of
+ * prefer-local-namespace). The base FetchPackageRegistry only ever resolves
+ * the `preview` namespace, so accepting `@local` requires owning resolve():
+ * both namespaces are normalized to `preview` before delegating, which reuses
+ * the base class's untar/cache logic and collapses both spellings onto one
+ * unpacked copy — the compiler consumes the returned directory handle, not
+ * the namespace embedded in it. Every other spec falls through to undefined,
+ * i.e. the standard "package not found" diagnostic.
+ */
+class VendoredPackageRegistry extends FetchPackageRegistry {
+  constructor(
+    am: MemoryAccessModel,
+    private tarball: Uint8Array,
+  ) {
+    super(am);
+  }
+
+  override pullPackageData(spec: PackageSpec): Uint8Array | undefined {
+    return spec.name === "armymemo" && spec.version === "0.2.1" ? this.tarball : undefined;
+  }
+
+  override resolve(spec: PackageSpec, context: PackageResolveContext): string | undefined {
+    if (spec.namespace !== "local" && spec.namespace !== "preview") {
+      return undefined;
+    }
+    return super.resolve({ ...spec, namespace: "preview" }, context);
+  }
+}
+
 async function initOnce(): Promise<void> {
   initPromise ??= (async () => {
     const armymemoTarball = await fetchArmymemoTarball();
@@ -131,9 +165,7 @@ async function initOnce(): Promise<void> {
       TypstSnippet.disableDefaultFontAssets(),
       TypstSnippet.preloadFonts([fontSansUrl, fontSansBoldUrl, fontSansItalicUrl, fontSansBoldItalicUrl]),
       TypstSnippet.withAccessModel(accessModel),
-      TypstSnippet.fetchPackageBy(accessModel, (spec) =>
-        spec.name === "armymemo" && spec.version === "0.2.1" ? armymemoTarball : undefined,
-      ),
+      TypstSnippet.withPackageRegistry(new VendoredPackageRegistry(accessModel, armymemoTarball)),
     );
 
     // Force compiler creation now so init failures surface here, not mid-compile.

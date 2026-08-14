@@ -74,9 +74,12 @@ Everything the compiler needs ships in the bundle:
 - **armymemo package** — `vendor/armymemo-0.2.1.tar.gz` (AGPL), regenerated
   from a pinned upstream commit by `node scripts/vendor-armymemo.mjs`. The
   starter example in [src/assets/example.typ](src/assets/example.typ) imports
-  `@preview/armymemo:0.2.1`; bump the example import, the vendor script's
-  pinned commit, and the tarball together. Only vendored packages resolve —
-  other `@preview` imports fail with a diagnostic, by design.
+  `@local/armymemo:0.2.1` — the canonical form, since armymemo is not
+  published to Typst Universe; `@preview/armymemo:0.2.1` is also accepted so
+  existing documents keep compiling. Bump the example import, the vendor
+  script's pinned commit, and the tarball together. Only the vendored package
+  resolves — any other import, in either namespace, fails with a diagnostic,
+  by design.
 - **Liberation Sans** — `src/assets/fonts/` (SIL OFL, license included),
   selected via armymemo's `font` input as the metric-compatible stand-in for
   Arial. Default typst.ts font fetching (from GitHub) is disabled.
