@@ -1,0 +1,6 @@
+pandoc-example.md is examples/pandoc_example.md from
+https://github.com/jrolli/armymemo at commit
+f649d1b4dc3c0bab68eab652ff0c78d128f5626e (v0.2.1), vendored unmodified as the
+conformance fixture for the Markdown converter (design D5 of
+add-markdown-input): the converter must accept upstream's own pandoc example.
+Refresh it alongside vendor/armymemo-*.tar.gz when bumping the package.

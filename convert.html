@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Convert a Typst memo file to a signable AR 25-50 Army memo PDF, entirely in your browser."
+      content="Convert a Typst or Markdown memo file to a signable AR 25-50 Army memo PDF, entirely in your browser."
     />
     <title>Convert a file — memo.army.dev</title>
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -15,7 +15,7 @@
   <body>
     <header class="app-header">
       <h1>memo.army.dev</h1>
-      <p class="tagline">Drop a Typst file, get a signable AR 25-50 memo PDF</p>
+      <p class="tagline">Drop a Typst or Markdown file, get a signable AR 25-50 memo PDF</p>
     </header>
 
     <main class="app-main convert-main">
@@ -24,10 +24,10 @@
           id="file-input"
           class="visually-hidden-input"
           type="file"
-          accept=".typ,text/plain"
+          accept=".typ,.md,.markdown,text/plain,text/markdown"
           aria-describedby="convert-status"
         />
-        <span class="drop-zone-title">Drag a Typst memo file here</span>
+        <span class="drop-zone-title">Drag a Typst or Markdown memo file here</span>
         <span class="drop-zone-hint">or click to browse — the PDF downloads automatically</span>
       </label>
 

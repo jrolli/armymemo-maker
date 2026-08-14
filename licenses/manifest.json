@@ -50,6 +50,46 @@
       "description": "AR 25-50 Army memorandum template for Typst, vendored as vendor/armymemo-0.2.1.tar.gz (its LICENSE ships inside the tarball)."
     },
     {
+      "id": "yaml",
+      "name": "yaml",
+      "npm": "yaml",
+      "version": "2.9.0",
+      "license": "ISC",
+      "source": "https://github.com/eemeli/yaml",
+      "copyright": ["Copyright Eemeli Aro <eemeli@gmail.com>"],
+      "description": "YAML parser used to read the front matter of Markdown memos on the conversion page."
+    },
+    {
+      "id": "commonmark",
+      "name": "commonmark.js",
+      "npm": "commonmark",
+      "version": "0.31.2",
+      "license": "BSD-2-Clause",
+      "source": "https://github.com/commonmark/commonmark.js",
+      "copyright": ["Copyright (c) 2014, John MacFarlane"],
+      "description": "CommonMark reference parser used to convert Markdown memo bodies to Typst on the conversion page."
+    },
+    {
+      "id": "entities",
+      "name": "entities",
+      "npm": "entities",
+      "version": "3.0.1",
+      "license": "BSD-2-Clause",
+      "source": "https://github.com/fb55/entities",
+      "copyright": ["Copyright (c) Felix Böhm"],
+      "description": "HTML entity decoder bundled as a dependency of commonmark.js."
+    },
+    {
+      "id": "mdurl",
+      "name": "mdurl",
+      "npm": "mdurl",
+      "version": "1.0.1",
+      "license": "MIT",
+      "source": "https://github.com/markdown-it/mdurl",
+      "copyright": ["Copyright (c) 2015 Vitaly Puzrin, Alex Kocharin."],
+      "description": "URL encoder bundled as a dependency of commonmark.js."
+    },
+    {
       "id": "liberation-fonts",
       "name": "Liberation Sans",
       "version": "2.1.5",

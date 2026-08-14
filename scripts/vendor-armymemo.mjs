@@ -8,7 +8,11 @@
  * Requires: system `tar` on PATH.
  *
  * When bumping: update COMMIT (and VERSION if typst.toml changed), rerun, and
- * update the starter example's `#import` line to match.
+ * update to match: the starter example's `#import` line, ARMYMEMO_VERSION in
+ * src/armymemo-version.ts, licenses/manifest.json, and the vendored
+ * pandoc-example fixture in tests/markdown-conversion/ (then diff upstream's
+ * pandoc.typ against src/markdown/memo-arguments.ts, which mirrors it).
+ * check-acknowledgements.mjs enforces that all version pins move together.
  */
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";

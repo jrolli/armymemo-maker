@@ -9,6 +9,15 @@ from the template's `<eform-field>` metadata — are placed by
 [eform](https://github.com/jrolli/eform) WASM, ready to sign in Adobe Acrobat
 or any standard PDF viewer.
 
+The conversion page (`/convert.html`, linked from the editor) does the same in
+one gesture: drop a source file, get the PDF. It accepts Typst, or a Markdown
+memo in the format of armymemo's pandoc support — YAML front matter for the
+memo fields, a numbered-list body — converted to Typst in the browser
+(`src/markdown/`, mirroring upstream's `pandoc.typ` template) before
+compiling; upstream's `examples/pandoc_example.md` works unmodified.
+Unsupported Markdown constructs and front-matter mistakes fail with a pointed
+error rather than silently dropping memo content.
+
 ## The local-only contract
 
 Everything happens in your browser. There is no backend, and at runtime the app
@@ -77,9 +86,14 @@ Everything the compiler needs ships in the bundle:
   `@local/armymemo:0.2.1` — the canonical form, since armymemo is not
   published to Typst Universe; `@preview/armymemo:0.2.1` is also accepted so
   existing documents keep compiling. Bump the example import, the vendor
-  script's pinned commit, and the tarball together. Only the vendored package
-  resolves — any other import, in either namespace, fails with a diagnostic,
-  by design.
+  script's pinned commit, the tarball, the `ARMYMEMO_VERSION` constant in
+  [src/armymemo-version.ts](src/armymemo-version.ts) (the pin the Markdown
+  converter emits), and the vendored pandoc-example fixture in
+  `tests/markdown-conversion/` together — `npm run check:acknowledgements`
+  fails the build when the pins disagree — and review upstream's `pandoc.typ`
+  diff against `src/markdown/memo-arguments.ts`, which mirrors it. Only the
+  vendored package resolves — any other import, in either namespace, fails
+  with a diagnostic, by design.
 - **Liberation Sans** — `src/assets/fonts/` (SIL OFL, license included),
   selected via armymemo's `font` input as the metric-compatible stand-in for
   Arial. Default typst.ts font fetching (from GitHub) is disabled.

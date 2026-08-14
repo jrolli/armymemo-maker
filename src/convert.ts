@@ -1,12 +1,15 @@
 /**
  * Drop-a-file conversion page (add-file-compile-page): one gesture — drop or
- * pick a Typst source file — compiles it with the shared worker pipeline and
+ * pick a memo source file — compiles it with the shared worker pipeline and
  * immediately downloads the resulting PDF, named after the source file with
- * the extension swapped to `.pdf` (design D2-D5).
+ * the extension swapped to `.pdf` (design D2-D5). The extension selects the
+ * interpretation (design D4 of add-markdown-input): `.md`/`.markdown` files
+ * are converted from Markdown to Typst first; everything else is Typst.
  */
 import "./style.css";
 import { compileToPdf, addFields } from "./compile-client";
 import { deriveConvertedFilename } from "./download-filename";
+import { convertMarkdownMemo, isMarkdownFilename, MarkdownConversionError } from "./markdown";
 
 function element<T extends HTMLElement>(id: string, type: new () => T): T {
   const found = document.getElementById(id);
@@ -100,7 +103,21 @@ async function convertFile(file: File) {
   dropZone.classList.add("drop-zone--busy");
   showStatus(`Compiling ${file.name}…`);
   try {
-    const source = await file.text();
+    let source = await file.text();
+    // Extension dispatch (design D4 of add-markdown-input): a Markdown memo
+    // is converted to Typst first, then flows through the same pipeline.
+    if (isMarkdownFilename(file.name)) {
+      try {
+        source = convertMarkdownMemo(source);
+      } catch (error) {
+        if (!(error instanceof MarkdownConversionError)) {
+          throw error;
+        }
+        showStatus(`${file.name} did not convert — nothing downloaded`, { warn: true });
+        showDiagnostics(error.message);
+        return;
+      }
+    }
     const outcome = await compileToPdf(source);
     if (!outcome.ok) {
       showStatus(`${file.name} did not compile — nothing downloaded`, { warn: true });
@@ -125,8 +142,8 @@ function takeSingleFile(files: FileList | File[] | null | undefined): File | und
   if (list.length !== 1) {
     showStatus(
       list.length === 0
-        ? "No file received — drop a Typst source file or click to browse"
-        : `${list.length} files received — drop exactly one Typst source file`,
+        ? "No file received — drop a Typst or Markdown memo file or click to browse"
+        : `${list.length} files received — drop exactly one Typst or Markdown memo file`,
       { warn: true },
     );
     return undefined;

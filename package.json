@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && npm run check:acknowledgements && vite build && node scripts/generate-sw.mjs && npm run check:local-only && npm run check:precache && npm run check:asset-size",
+    "build": "tsc --noEmit && npm run check:acknowledgements && npm run check:markdown-conversion && vite build && node scripts/generate-sw.mjs && npm run check:local-only && npm run check:precache && npm run check:asset-size",
     "check:acknowledgements": "node scripts/check-acknowledgements.mjs",
+    "check:markdown-conversion": "node scripts/check-markdown-conversion.mjs",
     "check:local-only": "node scripts/check-local-only.mjs",
     "check:precache": "node scripts/check-precache.mjs",
     "check:asset-size": "node scripts/check-asset-size.mjs",
@@ -16,9 +17,14 @@
   "devDependencies": {
     "@myriaddreamin/typst-ts-web-compiler": "0.7.0",
     "@myriaddreamin/typst.ts": "0.7.0",
+    "@types/commonmark": "^0.27.10",
     "@types/node": "^26.1.1",
     "playwright": "^1.61.1",
     "typescript": "^5.6.0",
     "vite": "^7.0.0"
+  },
+  "dependencies": {
+    "commonmark": "^0.31.2",
+    "yaml": "^2.9.0"
   }
 }

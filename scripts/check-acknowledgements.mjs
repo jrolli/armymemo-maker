@@ -6,7 +6,10 @@
  *
  *   - typst.ts version   vs the @myriaddreamin/* pins in package.json
  *   - eform commit        vs vendor/eform/PROVENANCE
- *   - armymemo version    vs the vendor/armymemo-<version>.tar.gz tarball
+ *   - armymemo version    vs the vendor/armymemo-<version>.tar.gz tarball,
+ *                         the ARMYMEMO_VERSION constant, and the starter
+ *                         example's #import
+ *   - npm runtime deps    vs their inventory components and the lockfile
  *   - font files          vs the .ttf files present in src/assets/fonts/
  *   - app version         vs package.json
  *
@@ -48,7 +51,10 @@ const errors = [];
   }
 }
 
-// armymemo: the recorded version's tarball must be the one (and only) vendored.
+// armymemo: the recorded version's tarball must be the one (and only) vendored,
+// and every source-side pin must agree with it — the ARMYMEMO_VERSION constant
+// (emitted into converted Markdown memos) and the starter example's #import
+// (design D6 of add-markdown-input).
 {
   const recorded = component("armymemo")?.version;
   const tarballs = readdirSync(join(ROOT, "vendor")).filter((f) => /^armymemo-.*\.tar\.gz$/.test(f));
@@ -56,6 +62,41 @@ const errors = [];
     errors.push(
       `armymemo: inventory records ${recorded} but vendor/ contains ${tarballs.join(", ") || "no armymemo tarball"}`,
     );
+  }
+  const constant = readFileSync(join(ROOT, "src/armymemo-version.ts"), "utf8")
+    .match(/ARMYMEMO_VERSION = "([^"]+)"/)?.[1];
+  if (constant !== recorded) {
+    errors.push(
+      `armymemo: inventory records ${recorded} but src/armymemo-version.ts pins ${constant}`,
+    );
+  }
+  const example = readFileSync(join(ROOT, "src/assets/example.typ"), "utf8")
+    .match(/@(?:local|preview)\/armymemo:([^"]+)"/)?.[1];
+  if (example !== recorded) {
+    errors.push(
+      `armymemo: inventory records ${recorded} but src/assets/example.typ imports ${example}`,
+    );
+  }
+}
+
+// npm runtime dependencies: every package.json runtime dependency must have an
+// inventory component (marked with its npm name), and each such component's
+// recorded version must be the one the lockfile actually installs.
+{
+  const lock = JSON.parse(readFileSync(join(ROOT, "package-lock.json"), "utf8"));
+  const npmComponents = manifest.components.filter((c) => c.npm);
+  for (const dep of Object.keys(pkg.dependencies ?? {})) {
+    if (!npmComponents.some((c) => c.npm === dep)) {
+      errors.push(`${dep}: runtime npm dependency has no inventory component`);
+    }
+  }
+  for (const c of npmComponents) {
+    const installed = lock.packages[`node_modules/${c.npm}`]?.version;
+    if (installed !== c.version) {
+      errors.push(
+        `${c.id}: inventory records ${c.version} but package-lock.json installs ${installed}`,
+      );
+    }
   }
 }
 

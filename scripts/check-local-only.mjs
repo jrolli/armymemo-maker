@@ -12,6 +12,10 @@ const DIST = new URL("../dist/", import.meta.url).pathname;
 // URL-shaped strings that are identifiers, not network fetches.
 const ALLOWED_PREFIXES = [
   "http://www.w3.org/", // XML/SVG/XHTML namespace URIs
+  // XML namespace URI in commonmark.js's (unused) XML renderer, bundled with
+  // the Markdown converter. A namespace identifier, never fetched; the
+  // production CSP blocks the origin regardless.
+  "http://commonmark.org/xml/1.0",
   // Dead-code URL strings bundled from vendored typst.ts: its default font
   // CDN and default package registry. Both defaults are replaced at runtime
   // (disableDefaultFontAssets + local armymemo package fetcher), and the
