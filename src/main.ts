@@ -3,8 +3,10 @@ import { createEditor } from "./editor";
 import { compileToPdf, addFields } from "./compile-client";
 import { deriveDownloadFilename } from "./download-filename";
 import type { FormField } from "./typst-service";
-import { loadDraft, saveDraft } from "./draft-store";
-import exampleSource from "./assets/example.typ?raw";
+import { loadDraft, saveDraft, loadMode, saveMode, type SourceMode } from "./draft-store";
+import { convertMarkdownMemo, MarkdownConversionError } from "./markdown";
+import exampleTypst from "./assets/example.typ?raw";
+import exampleMarkdown from "./assets/example.md?raw";
 
 function element<T extends HTMLElement>(id: string, type: new () => T): T {
   const found = document.getElementById(id);
@@ -15,6 +17,7 @@ function element<T extends HTMLElement>(id: string, type: new () => T): T {
 }
 
 const textarea = element("source-editor", HTMLTextAreaElement);
+const sourceHeading = element("source-heading", HTMLHeadingElement);
 const compileButton = element("compile-button", HTMLButtonElement);
 const downloadButton = element("download-button", HTMLButtonElement);
 const emptyState = element("output-empty", HTMLDivElement);
@@ -23,10 +26,47 @@ const diagnosticsPane = element("diagnostics", HTMLPreElement);
 const preview = element("pdf-preview", HTMLIFrameElement);
 
 const editor = createEditor(textarea);
+
+// Source-format mode (design D1/D3 of add-editor-markdown-mode): one draft
+// and one starter example per mode; `mode` is read by the save subscription
+// and the compile snapshot, so it must be current before either runs.
+const EXAMPLES: Record<SourceMode, string> = { typst: exampleTypst, markdown: exampleMarkdown };
+const modeRadios = [...document.querySelectorAll<HTMLInputElement>('input[name="source-mode"]')];
+let mode = loadMode();
+
+function applyModeLabels() {
+  sourceHeading.textContent = mode === "markdown" ? "Markdown source" : "Typst source";
+  textarea.setAttribute(
+    "aria-label",
+    mode === "markdown" ? "Markdown memo source" : "Typst memo source",
+  );
+}
+
+for (const radio of modeRadios) {
+  radio.checked = radio.value === mode;
+}
+applyModeLabels();
+
 // Restore before wiring the save subscription so restoring never re-saves
 // (design D3 of add-draft-persistence); blank drafts fall back to the example.
-editor.setSource(loadDraft() ?? exampleSource);
-editor.onChange(saveDraft);
+editor.setSource(loadDraft(mode) ?? EXAMPLES[mode]);
+editor.onChange((source) => saveDraft(mode, source));
+
+for (const radio of modeRadios) {
+  radio.addEventListener("change", () => {
+    if (!radio.checked || radio.value === mode) {
+      return;
+    }
+    // Switch the save target before loading the incoming draft (design D3):
+    // the outgoing mode's draft was already saved on its last edit, and the
+    // setSource below fires the change subscriptions, so the save lands under
+    // the new mode's key and the debounced recompile picks the source up.
+    mode = radio.value === "markdown" ? "markdown" : "typst";
+    saveMode(mode);
+    applyModeLabels();
+    editor.setSource(loadDraft(mode) ?? EXAMPLES[mode]);
+  });
+}
 
 let latestPdf: Uint8Array | undefined;
 let latestFilename = "memo.pdf";
@@ -107,8 +147,24 @@ function showDiagnostics(text: string) {
 async function compileOnce() {
   // Snapshot the source so the download filename always matches the bytes it
   // names, even if the editor has newer, uncompiled text (design D2 of
-  // add-subject-download-filename).
-  const source = editor.getSource();
+  // add-subject-download-filename). In Markdown mode the snapshot is
+  // converted first, and the converted Typst feeds both the compiler and the
+  // filename derivation (design D2 of add-editor-markdown-mode); a
+  // conversion error surfaces like compile diagnostics, leaving the previous
+  // output and its Download untouched.
+  let source = editor.getSource();
+  if (mode === "markdown") {
+    try {
+      source = convertMarkdownMemo(source);
+    } catch (error) {
+      if (!(error instanceof MarkdownConversionError)) {
+        throw error;
+      }
+      fieldStatus.hidden = true;
+      showDiagnostics(error.message);
+      return;
+    }
+  }
   const outcome = await compileToPdf(source);
   if (outcome.ok) {
     const outputPdf = await toOutputPdf(outcome);

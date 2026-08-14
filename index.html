@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Produce signable AR 25-50 Army memo PDFs from Typst source, entirely in your browser."
+      content="Produce signable AR 25-50 Army memo PDFs from Typst or Markdown source, entirely in your browser."
     />
     <title>memo.army.dev</title>
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -19,9 +19,13 @@
     </header>
 
     <main class="app-main">
-      <section class="pane editor-pane" aria-label="Typst source editor">
+      <section class="pane editor-pane" aria-label="Memo source editor">
         <div class="pane-header">
-          <h2>Typst source</h2>
+          <h2 id="source-heading">Typst source</h2>
+          <div class="mode-toggle" role="radiogroup" aria-label="Source format">
+            <label><input type="radio" name="source-mode" value="typst" checked /><span>Typst</span></label>
+            <label><input type="radio" name="source-mode" value="markdown" /><span>Markdown</span></label>
+          </div>
         </div>
         <textarea
           id="source-editor"

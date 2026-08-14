@@ -11,9 +11,12 @@
  *                                           error containing the expected text
  *
  * cases/pandoc-example.md is upstream armymemo's own pandoc example (see its
- * PROVENANCE file). After an intentional converter change, regenerate goldens
- * with `node scripts/check-markdown-conversion.mjs --update`, compile-verify
- * them on the conversion page, and commit the result.
+ * PROVENANCE file). The editor's Markdown starter example (src/assets/
+ * example.md, design D4 of add-editor-markdown-mode) is also checked, against
+ * the golden starter-example.typ here. After an intentional converter change,
+ * regenerate goldens with `node scripts/check-markdown-conversion.mjs
+ * --update`, compile-verify them on the conversion page, and commit the
+ * result.
  *
  * The converter is TypeScript imported directly — Node's type stripping runs
  * it without a build step.
@@ -37,40 +40,57 @@ const names = (dir, suffix) =>
     .sort();
 
 let checked = 0;
-for (const name of names("cases", ".md")) {
-  const source = readFileSync(join(FIXTURES, "cases", `${name}.md`), "utf8");
-  const goldenPath = join(FIXTURES, "cases", `${name}.typ`);
+function checkCase(label, sourcePath, goldenPath, goldenLabel) {
+  const source = readFileSync(sourcePath, "utf8");
   let converted;
   try {
     converted = convertMarkdownMemo(source);
   } catch (error) {
-    errors.push(`cases/${name}.md: conversion threw: ${error.message}`);
-    continue;
+    errors.push(`${label}: conversion threw: ${error.message}`);
+    return;
   }
   if (update) {
     writeFileSync(goldenPath, converted);
-    console.log(`updated cases/${name}.typ`);
-    continue;
+    console.log(`updated ${goldenLabel}`);
+    return;
   }
   let golden;
   try {
     golden = readFileSync(goldenPath, "utf8");
   } catch {
-    errors.push(`cases/${name}.md: golden cases/${name}.typ is missing — run with --update`);
-    continue;
+    errors.push(`${label}: golden ${goldenLabel} is missing — run with --update`);
+    return;
   }
   if (converted !== golden) {
     const convertedLines = converted.split("\n");
     const goldenLines = golden.split("\n");
     const firstDiff = convertedLines.findIndex((line, i) => line !== goldenLines[i]);
     errors.push(
-      `cases/${name}.md: output differs from golden at line ${firstDiff + 1}:\n` +
+      `${label}: output differs from golden at line ${firstDiff + 1}:\n` +
         `    golden:    ${JSON.stringify(goldenLines[firstDiff] ?? "<end of file>")}\n` +
         `    converted: ${JSON.stringify(convertedLines[firstDiff] ?? "<end of file>")}`,
     );
   }
   checked += 1;
 }
+
+for (const name of names("cases", ".md")) {
+  checkCase(
+    `cases/${name}.md`,
+    join(FIXTURES, "cases", `${name}.md`),
+    join(FIXTURES, "cases", `${name}.typ`),
+    `cases/${name}.typ`,
+  );
+}
+
+// The shipped Markdown starter example must always convert (design D4 of
+// add-editor-markdown-mode); its golden lives with the other fixtures.
+checkCase(
+  "src/assets/example.md",
+  join(ROOT, "src/assets/example.md"),
+  join(FIXTURES, "starter-example.typ"),
+  "starter-example.typ",
+);
 
 for (const name of names("errors", ".md")) {
   const source = readFileSync(join(FIXTURES, "errors", `${name}.md`), "utf8");
