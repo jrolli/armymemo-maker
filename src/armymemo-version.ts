@@ -5,4 +5,4 @@
  * example's `#import` — scripts/check-acknowledgements.mjs fails the build
  * when any of them disagree (design D6 of add-markdown-input).
  */
-export const ARMYMEMO_VERSION = "0.2.1";
+export const ARMYMEMO_VERSION = "0.2.3";

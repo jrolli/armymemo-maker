@@ -80,11 +80,11 @@ npm run preview    # serve the production bundle locally
 
 Everything the compiler needs ships in the bundle:
 
-- **armymemo package** — `vendor/armymemo-0.2.1.tar.gz` (AGPL), regenerated
+- **armymemo package** — `vendor/armymemo-0.2.3.tar.gz` (AGPL), regenerated
   from a pinned upstream commit by `node scripts/vendor-armymemo.mjs`. The
   starter example in [src/assets/example.typ](src/assets/example.typ) imports
-  `@local/armymemo:0.2.1` — the canonical form, since armymemo is not
-  published to Typst Universe; `@preview/armymemo:0.2.1` is also accepted so
+  `@local/armymemo:0.2.3` — the canonical form, since armymemo is not
+  published to Typst Universe; `@preview/armymemo:0.2.3` is also accepted so
   existing documents keep compiling. Bump the example import, the vendor
   script's pinned commit, the tarball, the `ARMYMEMO_VERSION` constant in
   [src/armymemo-version.ts](src/armymemo-version.ts) (the pin the Markdown

@@ -27,6 +27,7 @@ const TOP_LEVEL_FIELDS = new Set([
   "distribution-separate-page",
   "cf",
   "cf-without-encls",
+  "seal",
 ]);
 const ADDRESS_FIELDS = ["name", "street", "city-state-zip"];
 const AUTHOR_FIELDS = ["name", "rank", "branch", "title"];
@@ -171,6 +172,8 @@ export function memoArguments(metadata: Record<string, unknown>): string[] {
   flag("distribution-separate-page");
   stringList("cf");
   flag("cf-without-encls");
+  // Unvalidated by design: armymemo's own assertion names the accepted seals.
+  scalarField(metadata, "seal", "seal");
 
   if (missing.length > 0 || problems.length > 0) {
     const parts: string[] = [];

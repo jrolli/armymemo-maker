@@ -29,6 +29,7 @@ distribution:
 cf:
   - G-3
 cf-without-encls: true
+seal: DOW
 ---
 
 1. This memo exercises every supported front-matter field plus the body

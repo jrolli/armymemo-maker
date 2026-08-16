@@ -1,4 +1,4 @@
-#import "@local/armymemo:0.2.1": memo
+#import "@local/armymemo:0.2.3": memo
 
 #show: memo.with(
   office-symbol: "ATZB-CD-E",
@@ -36,6 +36,7 @@
   distribution: ("2d Battalion", "3d Battalion",),
   cf: ("G-3",),
   cf-without-encls: true,
+  seal: "DOW",
 )
 
 1. This memo exercises every supported front-matter field plus the body constructs a memo needs: #strong[strong], #emph[emphasis], #raw("inline code"), and a #link("https://example.mil/policy")[reference].

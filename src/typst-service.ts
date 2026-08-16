@@ -14,7 +14,7 @@ import { MemoryAccessModel } from "@myriaddreamin/typst.ts/fs/memory";
 import { FetchPackageRegistry } from "@myriaddreamin/typst.ts/fs/package";
 import type { PackageResolveContext, PackageSpec } from "@myriaddreamin/typst.ts/internal.types";
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
-import armymemoTarballUrl from "../vendor/armymemo-0.2.1.tar.gz?url";
+import armymemoTarballUrl from "../vendor/armymemo-0.2.3.tar.gz?url";
 import fontSansUrl from "./assets/fonts/LiberationSans-Regular.ttf?url";
 import fontSansBoldUrl from "./assets/fonts/LiberationSans-Bold.ttf?url";
 import fontSansItalicUrl from "./assets/fonts/LiberationSans-Italic.ttf?url";
@@ -143,7 +143,7 @@ class VendoredPackageRegistry extends FetchPackageRegistry {
   }
 
   override pullPackageData(spec: PackageSpec): Uint8Array | undefined {
-    return spec.name === "armymemo" && spec.version === "0.2.1" ? this.tarball : undefined;
+    return spec.name === "armymemo" && spec.version === "0.2.3" ? this.tarball : undefined;
   }
 
   override resolve(spec: PackageSpec, context: PackageResolveContext): string | undefined {
