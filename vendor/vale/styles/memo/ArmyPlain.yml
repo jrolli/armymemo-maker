@@ -1,0 +1,38 @@
+# Army plain-writing substitutions (AR 25-50 active-and-concise guidance,
+# DA Pam 600-67 flavor): bloated phrases with one clear replacement. Entries
+# here are deliberately absent from TooWordy.yml so each match is flagged
+# once, with its fix.
+extends: substitution
+message: "Prefer '%s' over '%s'."
+ignorecase: true
+level: warning
+action:
+  name: replace
+swap:
+  as per: per
+  in accordance with: per
+  in compliance with: per
+  at this time: now
+  at the present time: now
+  at your earliest convenience: soon
+  prior to: before
+  subsequent to: after
+  in order to: to
+  in lieu of: instead of
+  in regard to: about
+  pertaining to: about
+  with regard to: about
+  due to the fact that: because
+  in the event that: if
+  provided that: if
+  afford an opportunity: allow
+  commence: begin
+  terminate: end
+  endeavor: try
+  expeditious: quick
+  expedite: speed up
+  facilitate: help
+  utilize: use
+  inasmuch as: since
+  it is requested that: please
+  not later than: by

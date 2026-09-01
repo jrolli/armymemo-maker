@@ -179,6 +179,63 @@ body {
   border-radius: 4px;
 }
 
+/* Prose lint findings (design D4 of add-vale-prose-linting): an advisory
+   strip below the output body — never part of diagnostics, never affecting
+   preview or download. The pane grid's implicit third row sizes it. */
+.prose-findings {
+  border-top: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  max-height: 10rem;
+  overflow: auto;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.prose-findings-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+
+.prose-findings-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.prose-findings-list li {
+  margin: 0.125rem 0;
+  overflow-wrap: anywhere;
+}
+
+.prose-loc {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.prose-severity {
+  font-weight: 600;
+}
+
+.prose-severity--warning,
+.prose-severity--error {
+  color: #92400e;
+}
+
+.prose-rule {
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+}
+
+.prose-unavailable {
+  list-style: none;
+  margin-left: -1.25rem;
+  color: var(--ink-muted);
+}
+
 .pdf-preview {
   width: 100%;
   height: 100%;
@@ -429,6 +486,15 @@ body {
 
 .convert-diagnostics {
   align-self: start;
+}
+
+/* Standalone on the conversion page (no pane below it), so the strip gets a
+   full border instead of the editor pane's top rule. */
+.convert-prose-findings {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--panel);
+  align-self: stretch;
 }
 
 /* Narrow viewports: stack panes vertically; nothing may clip or overlap. */

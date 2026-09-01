@@ -1,0 +1,6 @@
+Built from https://github.com/errata-ai/vale at commit 5d338235328cccff03a0758d0bc692f35428bed8
+with scripts/vale-wasm.patch applied (js/wasm build: tree-sitter
+code-linting paths behind !js build tags), by scripts/vendor-vale.sh
+(GOOS=js GOARCH=wasm, go 1.25.7, gzip -9 -n).
+wasm_exec.js is from the same go 1.25.7 toolchain and must only
+ever be updated together with vale.wasm.gz.

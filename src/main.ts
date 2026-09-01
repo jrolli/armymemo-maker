@@ -5,6 +5,7 @@ import { deriveDownloadFilename } from "./download-filename";
 import type { FormField } from "./typst-service";
 import { loadDraft, saveDraft, loadMode, saveMode, type SourceMode } from "./draft-store";
 import { convertMarkdownMemo, MarkdownConversionError } from "./markdown";
+import { createLintPresenter } from "./findings-view";
 import exampleTypst from "./assets/example.typ?raw";
 import exampleMarkdown from "./assets/example.md?raw";
 
@@ -24,6 +25,11 @@ const emptyState = element("output-empty", HTMLDivElement);
 const fieldStatus = element("field-status", HTMLParagraphElement);
 const diagnosticsPane = element("diagnostics", HTMLPreElement);
 const preview = element("pdf-preview", HTMLIFrameElement);
+const lintPresenter = createLintPresenter(
+  element("prose-findings", HTMLDivElement),
+  element("prose-findings-title", HTMLHeadingElement),
+  element("prose-findings-list", HTMLUListElement),
+);
 
 const editor = createEditor(textarea);
 
@@ -153,6 +159,11 @@ async function compileOnce() {
   // conversion error surfaces like compile diagnostics, leaving the previous
   // output and its Download untouched.
   let source = editor.getSource();
+  // Prose lint rides the same snapshot as a parallel side-channel (design D4
+  // of add-vale-prose-linting), always on the text as entered — never the
+  // converted Typst — so finding positions match the visible source. Its
+  // result renders independently of the compile outcome below.
+  lintPresenter.request(source, mode === "markdown" ? "md" : "typ");
   if (mode === "markdown") {
     try {
       source = convertMarkdownMemo(source);

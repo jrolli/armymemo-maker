@@ -51,6 +51,27 @@ const errors = [];
   }
 }
 
+// vale: the pinned commit and Go toolchain in PROVENANCE must match the
+// recorded vale commit and go component version (the wasm and wasm_exec.js
+// are a version-matched pair, so the Go entry must track the actual build).
+{
+  const provenance = readFileSync(join(ROOT, "vendor/vale/PROVENANCE"), "utf8");
+  const shippedCommit = provenance.match(/at commit ([0-9a-f]{40})/)?.[1];
+  const recordedCommit = component("vale")?.commit;
+  if (shippedCommit !== recordedCommit) {
+    errors.push(
+      `vale: inventory records commit ${recordedCommit} but vendor/vale/PROVENANCE says ${shippedCommit}`,
+    );
+  }
+  const shippedGo = provenance.match(/go (\d+\.\d+(?:\.\d+)?)/)?.[1];
+  const recordedGo = component("go")?.version;
+  if (shippedGo !== recordedGo) {
+    errors.push(
+      `go: inventory records ${recordedGo} but vendor/vale/PROVENANCE says go ${shippedGo}`,
+    );
+  }
+}
+
 // armymemo: the recorded version's tarball must be the one (and only) vendored,
 // and every source-side pin must agree with it — the ARMYMEMO_VERSION constant
 // (emitted into converted Markdown memos) and the starter example's #import

@@ -10,7 +10,7 @@
       name="description"
       content="Copyright notices and license texts for every third-party component shipped with memo.army.dev."
     />
-    <meta name="inventory-digest" content="sha256:1d4f35956e1f75882cace81f8f88b6b7c7d1670e2af3465f381c102d203c575d" />
+    <meta name="inventory-digest" content="sha256:da9ec6db02a041e5ed06c2c6257adb42a26e1f54e90deae5cff5f24633619d0d" />
     <title>Acknowledgements — memo.army.dev</title>
     <link rel="stylesheet" href="/src/style.css" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
@@ -61,6 +61,27 @@
         <p>AR 25-50 Army memorandum template for Typst, vendored as vendor/armymemo-0.2.3.tar.gz (its LICENSE ships inside the tarball).
           Source: <a href="https://github.com/jrolli/armymemo">github.com/jrolli/armymemo</a>.
           License: <a href="#license-AGPL-3-0-or-later">AGPL-3.0-or-later</a>.</p>
+      </section>
+      <section class="ack-component">
+        <h3>Vale <span class="ack-version">3 (commit <code>5d338235328cccff03a0758d0bc692f35428bed8</code>)</span></h3>
+        <p class="ack-copyright">Copyright (c) 2016 Joseph Kato</p>
+        <p>The Vale prose linter compiled to WASM for in-browser prose suggestions (vendor/vale/, built from the pinned commit by scripts/vendor-vale.sh with scripts/vale-wasm.patch applied).
+          Source: <a href="https://github.com/errata-ai/vale">github.com/errata-ai/vale</a>.
+          License: <a href="#license-MIT">MIT</a>.</p>
+      </section>
+      <section class="ack-component">
+        <h3>Go (runtime and standard library) <span class="ack-version">1.25.7</span></h3>
+        <p class="ack-copyright">Copyright 2009 The Go Authors</p>
+        <p>The Go runtime and standard library compiled into the Vale WASM, and the wasm_exec.js loader shipped beside it (vendor/vale/wasm_exec.js).
+          Source: <a href="https://go.dev">go.dev</a>.
+          License: <a href="#license-BSD-3-Clause">BSD-3-Clause</a>.</p>
+      </section>
+      <section class="ack-component">
+        <h3>write-good (Vale style) <span class="ack-version">master (commit <code>c9ceca7f574248a201d5524b001099c5626c7519</code>)</span></h3>
+        <p class="ack-copyright">Copyright (c) 2019 errata.ai</p>
+        <p>Basis of the bundled memo prose style (vendor/vale/styles/memo/): several rules ship verbatim, others are curated for Army writing — see that directory's README and LICENSE.
+          Source: <a href="https://github.com/errata-ai/write-good">github.com/errata-ai/write-good</a>.
+          License: <a href="#license-MIT">MIT</a>.</p>
       </section>
       <section class="ack-component">
         <h3>yaml <span class="ack-version">2.9.0</span></h3>
@@ -644,6 +665,75 @@
         <h4><a href="#license-MIT">MIT</a> OR <a href="#license-Unlicense">Unlicense</a> <span class="ack-version">(1 crate)</span></h4>
         <ul class="ack-crates">
           <li><code>memchr</code> 2.8.3 — Andrew Gallant, bluss — <a href="https://github.com/BurntSushi/memchr">github.com/BurntSushi/memchr</a></li>
+        </ul>
+      </section>
+      <section>
+        <h3>Go modules compiled into the Vale WASM <span class="ack-version">(54 crates)</span></h3>
+        <p>Dependency-module closure of the vale CLI for GOOS=js GOARCH=wasm at the pinned commit, per its go.mod. Where a crate declares alternative licenses
+          (&#8220;OR&#8221;), this distribution may be used under any of them; every referenced
+          license text appears in full below.</p>
+        <h4><a href="#license-MIT">MIT</a> <span class="ack-version">(42 crates)</span></h4>
+        <ul class="ack-crates">
+          <li><code>github.com/adrg/frontmatter</code> v0.2.0 — <a href="https://github.com/adrg/frontmatter">github.com/adrg/frontmatter</a></li>
+          <li><code>github.com/adrg/strutil</code> v0.3.1 — <a href="https://github.com/adrg/strutil">github.com/adrg/strutil</a></li>
+          <li><code>github.com/adrg/xdg</code> v0.5.3 — <a href="https://github.com/adrg/xdg">github.com/adrg/xdg</a></li>
+          <li><code>github.com/atomicgo/cursor</code> v0.0.1 — <a href="https://github.com/atomicgo/cursor">github.com/atomicgo/cursor</a></li>
+          <li><code>github.com/bmatcuk/doublestar/v4</code> v4.7.1 — <a href="https://github.com/bmatcuk/doublestar">github.com/bmatcuk/doublestar</a></li>
+          <li><code>github.com/BurntSushi/toml</code> v0.3.1 — <a href="https://github.com/BurntSushi/toml">github.com/BurntSushi/toml</a></li>
+          <li><code>github.com/cespare/xxhash/v2</code> v2.3.0 — <a href="https://github.com/cespare/xxhash">github.com/cespare/xxhash</a></li>
+          <li><code>github.com/clipperhouse/displaywidth</code> v0.10.0 — <a href="https://github.com/clipperhouse/displaywidth">github.com/clipperhouse/displaywidth</a></li>
+          <li><code>github.com/clipperhouse/uax29/v2</code> v2.6.0 — <a href="https://github.com/clipperhouse/uax29">github.com/clipperhouse/uax29</a></li>
+          <li><code>github.com/d5/tengo/v2</code> v2.17.0 — <a href="https://github.com/d5/tengo">github.com/d5/tengo</a></li>
+          <li><code>github.com/dlclark/regexp2/v2</code> v2.5.2 — <a href="https://github.com/dlclark/regexp2">github.com/dlclark/regexp2</a></li>
+          <li><code>github.com/expr-lang/expr</code> v1.17.7 — <a href="https://github.com/expr-lang/expr">github.com/expr-lang/expr</a></li>
+          <li><code>github.com/fatih/color</code> v1.18.0 — <a href="https://github.com/fatih/color">github.com/fatih/color</a></li>
+          <li><code>github.com/gobwas/glob</code> v0.2.3 — <a href="https://github.com/gobwas/glob">github.com/gobwas/glob</a></li>
+          <li><code>github.com/gookit/color</code> v1.5.4 — <a href="https://github.com/gookit/color">github.com/gookit/color</a></li>
+          <li><code>github.com/huandu/xstrings</code> v1.5.0 — <a href="https://github.com/huandu/xstrings">github.com/huandu/xstrings</a></li>
+          <li><code>github.com/jdkato/prose/v3</code> v3.2.1 — <a href="https://github.com/jdkato/prose">github.com/jdkato/prose</a></li>
+          <li><code>github.com/jdkato/regexp2/v2</code> v2.5.5 — <a href="https://github.com/jdkato/regexp2">github.com/jdkato/regexp2</a></li>
+          <li><code>github.com/Masterminds/semver/v3</code> v3.3.1 — <a href="https://github.com/Masterminds/semver">github.com/Masterminds/semver</a></li>
+          <li><code>github.com/Masterminds/sprig/v3</code> v3.3.0 — <a href="https://github.com/Masterminds/sprig">github.com/Masterminds/sprig</a></li>
+          <li><code>github.com/mattn/go-colorable</code> v0.1.14 — <a href="https://github.com/mattn/go-colorable">github.com/mattn/go-colorable</a></li>
+          <li><code>github.com/mattn/go-isatty</code> v0.0.20 — <a href="https://github.com/mattn/go-isatty">github.com/mattn/go-isatty</a></li>
+          <li><code>github.com/mattn/go-runewidth</code> v0.0.19 — <a href="https://github.com/mattn/go-runewidth">github.com/mattn/go-runewidth</a></li>
+          <li><code>github.com/mitchellh/copystructure</code> v1.2.0 — <a href="https://github.com/mitchellh/copystructure">github.com/mitchellh/copystructure</a></li>
+          <li><code>github.com/mitchellh/mapstructure</code> v1.5.0 — <a href="https://github.com/mitchellh/mapstructure">github.com/mitchellh/mapstructure</a></li>
+          <li><code>github.com/mitchellh/reflectwalk</code> v1.0.2 — <a href="https://github.com/mitchellh/reflectwalk">github.com/mitchellh/reflectwalk</a></li>
+          <li><code>github.com/niklasfasching/go-org</code> v1.7.0 — <a href="https://github.com/niklasfasching/go-org">github.com/niklasfasching/go-org</a></li>
+          <li><code>github.com/olekukonko/cat</code> v0.0.0-20250911104152-50322a0618f6 — <a href="https://github.com/olekukonko/cat">github.com/olekukonko/cat</a></li>
+          <li><code>github.com/olekukonko/errors</code> v1.2.0 — <a href="https://github.com/olekukonko/errors">github.com/olekukonko/errors</a></li>
+          <li><code>github.com/olekukonko/ll</code> v0.1.6 — <a href="https://github.com/olekukonko/ll">github.com/olekukonko/ll</a></li>
+          <li><code>github.com/olekukonko/tablewriter</code> v1.1.4 — <a href="https://github.com/olekukonko/tablewriter">github.com/olekukonko/tablewriter</a></li>
+          <li><code>github.com/otiai10/copy</code> v1.14.0 — <a href="https://github.com/otiai10/copy">github.com/otiai10/copy</a></li>
+          <li><code>github.com/pelletier/go-toml/v2</code> v2.2.5-0.20250826075308-a0e846496753 — <a href="https://github.com/pelletier/go-toml">github.com/pelletier/go-toml</a></li>
+          <li><code>github.com/pterm/pterm</code> v0.12.40 — <a href="https://github.com/pterm/pterm">github.com/pterm/pterm</a></li>
+          <li><code>github.com/remeh/sizedwaitgroup</code> v1.0.0 — <a href="https://github.com/remeh/sizedwaitgroup">github.com/remeh/sizedwaitgroup</a></li>
+          <li><code>github.com/shopspring/decimal</code> v1.4.0 — <a href="https://github.com/shopspring/decimal">github.com/shopspring/decimal</a></li>
+          <li><code>github.com/spf13/cast</code> v1.7.1 — <a href="https://github.com/spf13/cast">github.com/spf13/cast</a></li>
+          <li><code>github.com/tomwright/dasel/v2</code> v2.8.1 — <a href="https://github.com/tomwright/dasel">github.com/tomwright/dasel</a></li>
+          <li><code>github.com/tomwright/dasel/v3</code> v3.10.1 — <a href="https://github.com/tomwright/dasel">github.com/tomwright/dasel</a></li>
+          <li><code>github.com/xo/terminfo</code> v0.0.0-20220910002029-abceb7e1c41e — <a href="https://github.com/xo/terminfo">github.com/xo/terminfo</a></li>
+          <li><code>github.com/yuin/goldmark</code> v1.7.8 — <a href="https://github.com/yuin/goldmark">github.com/yuin/goldmark</a></li>
+          <li><code>gopkg.in/neurosnap/sentences.v1</code> v1.0.7 — <a href="https://gopkg.in/neurosnap/sentences.v1">gopkg.in/neurosnap/sentences.v1</a></li>
+        </ul>
+        <h4><a href="#license-BSD-3-Clause">BSD-3-Clause</a> <span class="ack-version">(8 crates)</span></h4>
+        <ul class="ack-crates">
+          <li><code>dario.cat/mergo</code> v1.0.1 — <a href="https://dario.cat/mergo">dario.cat/mergo</a></li>
+          <li><code>github.com/google/uuid</code> v1.6.0 — <a href="https://github.com/google/uuid">github.com/google/uuid</a></li>
+          <li><code>github.com/spf13/pflag</code> v1.0.5 — <a href="https://github.com/spf13/pflag">github.com/spf13/pflag</a></li>
+          <li><code>golang.org/x/crypto</code> v0.52.0 — <a href="https://golang.org/x/crypto">golang.org/x/crypto</a></li>
+          <li><code>golang.org/x/exp</code> v0.0.0-20250106191152-7588d65b2ba8 — <a href="https://golang.org/x/exp">golang.org/x/exp</a></li>
+          <li><code>golang.org/x/net</code> v0.55.0 — <a href="https://golang.org/x/net">golang.org/x/net</a></li>
+          <li><code>golang.org/x/sync</code> v0.16.0 — <a href="https://golang.org/x/sync">golang.org/x/sync</a></li>
+          <li><code>golang.org/x/term</code> v0.43.0 — <a href="https://golang.org/x/term">golang.org/x/term</a></li>
+        </ul>
+        <h4><a href="#license-Apache-2-0">Apache-2.0</a> <span class="ack-version">(4 crates)</span></h4>
+        <ul class="ack-crates">
+          <li><code>github.com/errata-ai/ini</code> v1.63.0 — <a href="https://github.com/errata-ai/ini">github.com/errata-ai/ini</a></li>
+          <li><code>github.com/Masterminds/goutils</code> v1.1.1 — <a href="https://github.com/Masterminds/goutils">github.com/Masterminds/goutils</a></li>
+          <li><code>gopkg.in/yaml.v2</code> v2.4.0 — <a href="https://gopkg.in/yaml.v2">gopkg.in/yaml.v2</a></li>
+          <li><code>gopkg.in/yaml.v3</code> v3.0.1 — <a href="https://gopkg.in/yaml.v3">gopkg.in/yaml.v3</a></li>
         </ul>
       </section>
 

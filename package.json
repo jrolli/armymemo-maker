@@ -6,9 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && npm run check:acknowledgements && npm run check:markdown-conversion && vite build && node scripts/generate-sw.mjs && npm run check:local-only && npm run check:precache && npm run check:asset-size",
+    "build": "tsc --noEmit && npm run check:acknowledgements && npm run check:markdown-conversion && npm run check:prose-style && npm run check:lint-shim && vite build && node scripts/generate-sw.mjs && npm run check:local-only && npm run check:precache && npm run check:asset-size",
     "check:acknowledgements": "node scripts/check-acknowledgements.mjs",
     "check:markdown-conversion": "node scripts/check-markdown-conversion.mjs",
+  "check:prose-style": "node scripts/check-prose-style.mjs",
+  "check:lint-shim": "node scripts/check-lint-shim.mjs",
     "check:local-only": "node scripts/check-local-only.mjs",
     "check:precache": "node scripts/check-precache.mjs",
     "check:asset-size": "node scripts/check-asset-size.mjs",

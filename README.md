@@ -18,6 +18,22 @@ compiling; upstream's `examples/pandoc_example.md` works unmodified.
 Unsupported Markdown constructs and front-matter mistakes fail with a pointed
 error rather than silently dropping memo content.
 
+## Prose suggestions (Vale)
+
+Every compile also runs the memo's prose through a real
+[Vale](https://vale.sh) linter compiled to WebAssembly — in the browser,
+under the same local-only contract. Findings (passive voice, wordy phrases,
+weasel words, Army plain-writing substitutions like "in accordance with" →
+"per") appear as an advisory "Prose suggestions" list beside the output on
+the editor page and under the outcome line on the conversion page, with the
+line and column in the source as you typed it. They are strictly advisory:
+nothing about linting — including its total failure — ever blocks or delays
+the PDF; if the prose check can't run, a one-line note says so and the memo
+is unaffected. The bundled style lives in `vendor/vale/styles/memo/`
+(write-good-derived, Army-leaning; see its README) and works with stock
+Vale too. Typst sources are linted via Vale's Markdown path with ignore
+patterns for Typst markup; Markdown memos are linted as Markdown.
+
 ## The local-only contract
 
 Everything happens in your browser. There is no backend, and at runtime the app
@@ -105,6 +121,17 @@ Everything the compiler needs ships in the bundle:
   cap that static hosts like Cloudflare enforce on uploads.
   `npm run check:asset-size` fails the build if any `dist/` file reaches that
   cap (it runs as part of `npm run build`).
+- **Vale WASM** — `vendor/vale/` (~9.5 MB `vale.wasm.gz` + its
+  version-matched `wasm_exec.js`; the pair must only ever be updated
+  together), built from a pinned [errata-ai/vale](https://github.com/errata-ai/vale)
+  commit by `scripts/vendor-vale.sh` with `scripts/vale-wasm.patch` applied
+  (the patch moves Vale's tree-sitter code-linting paths behind `!js` build
+  tags — cgo cannot target js/wasm). Loaded lazily by the lint worker on
+  the first prose check. The script also regenerates the Go-module notice
+  inventory (`licenses/vale-modules.json`); `npm run check:prose-style` and
+  `npm run check:lint-shim` fail the build if the vendored engine, style,
+  or the worker's in-memory filesystem shim regress. Licensed MIT
+  (`vendor/vale/LICENSE`); provenance in `vendor/vale/PROVENANCE`.
 - **eform WASM** — `vendor/eform/` (~1 MB), built from a pinned
   [jrolli/eform](https://github.com/jrolli/eform) commit by
   `scripts/vendor-eform.sh` (requires the Rust wasm32 target and a

@@ -50,6 +50,40 @@
       "description": "AR 25-50 Army memorandum template for Typst, vendored as vendor/armymemo-0.2.3.tar.gz (its LICENSE ships inside the tarball)."
     },
     {
+      "id": "vale",
+      "name": "Vale",
+      "version": "3",
+      "commit": "5d338235328cccff03a0758d0bc692f35428bed8",
+      "license": "MIT",
+      "source": "https://github.com/errata-ai/vale",
+      "copyright": ["Copyright (c) 2016 Joseph Kato"],
+      "description": "The Vale prose linter compiled to WASM for in-browser prose suggestions (vendor/vale/, built from the pinned commit by scripts/vendor-vale.sh with scripts/vale-wasm.patch applied).",
+      "crates": {
+        "file": "vale-modules.json",
+        "heading": "Go modules compiled into the Vale WASM",
+        "note": "Dependency-module closure of the vale CLI for GOOS=js GOARCH=wasm at the pinned commit, per its go.mod."
+      }
+    },
+    {
+      "id": "go",
+      "name": "Go (runtime and standard library)",
+      "version": "1.25.7",
+      "license": "BSD-3-Clause",
+      "source": "https://go.dev",
+      "copyright": ["Copyright 2009 The Go Authors"],
+      "description": "The Go runtime and standard library compiled into the Vale WASM, and the wasm_exec.js loader shipped beside it (vendor/vale/wasm_exec.js)."
+    },
+    {
+      "id": "write-good-style",
+      "name": "write-good (Vale style)",
+      "version": "master",
+      "commit": "c9ceca7f574248a201d5524b001099c5626c7519",
+      "license": "MIT",
+      "source": "https://github.com/errata-ai/write-good",
+      "copyright": ["Copyright (c) 2019 errata.ai"],
+      "description": "Basis of the bundled memo prose style (vendor/vale/styles/memo/): several rules ship verbatim, others are curated for Army writing — see that directory's README and LICENSE."
+    },
+    {
       "id": "yaml",
       "name": "yaml",
       "npm": "yaml",

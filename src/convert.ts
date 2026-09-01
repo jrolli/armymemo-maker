@@ -10,6 +10,7 @@ import "./style.css";
 import { compileToPdf, addFields } from "./compile-client";
 import { deriveConvertedFilename } from "./download-filename";
 import { convertMarkdownMemo, isMarkdownFilename, MarkdownConversionError } from "./markdown";
+import { createLintPresenter } from "./findings-view";
 
 function element<T extends HTMLElement>(id: string, type: new () => T): T {
   const found = document.getElementById(id);
@@ -23,6 +24,12 @@ const dropZone = element("drop-zone", HTMLLabelElement);
 const fileInput = element("file-input", HTMLInputElement);
 const status = element("convert-status", HTMLParagraphElement);
 const diagnosticsPane = element("diagnostics", HTMLPreElement);
+const lintPresenter = createLintPresenter(
+  element("prose-findings", HTMLDivElement),
+  element("prose-findings-title", HTMLHeadingElement),
+  element("prose-findings-list", HTMLUListElement),
+  { hideWhilePending: true },
+);
 
 function showStatus(text: string, options: { warn?: boolean } = {}) {
   status.classList.toggle("convert-status--warn", options.warn === true);
@@ -104,6 +111,11 @@ async function convertFile(file: File) {
   showStatus(`Compiling ${file.name}…`);
   try {
     let source = await file.text();
+    // Prose lint of the file as provided (design D4 of
+    // add-vale-prose-linting): a parallel side-channel that never gates the
+    // compile-and-download flow — its findings render under the outcome
+    // status whenever they arrive, including alongside a failure report.
+    lintPresenter.request(source, isMarkdownFilename(file.name) ? "md" : "typ");
     // Extension dispatch (design D4 of add-markdown-input): a Markdown memo
     // is converted to Typst first, then flows through the same pipeline.
     if (isMarkdownFilename(file.name)) {

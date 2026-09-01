@@ -14,6 +14,7 @@ import { MemoryAccessModel } from "@myriaddreamin/typst.ts/fs/memory";
 import { FetchPackageRegistry } from "@myriaddreamin/typst.ts/fs/package";
 import type { PackageResolveContext, PackageSpec } from "@myriaddreamin/typst.ts/internal.types";
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
+import { fetchMaybeGzipped, looksGzipped } from "./gzip-fetch";
 import armymemoTarballUrl from "../vendor/armymemo-0.2.3.tar.gz?url";
 import fontSansUrl from "./assets/fonts/LiberationSans-Regular.ttf?url";
 import fontSansBoldUrl from "./assets/fonts/LiberationSans-Bold.ttf?url";
@@ -57,49 +58,15 @@ interface Diagnostic {
 
 let initPromise: Promise<void> | undefined;
 
-const GZIP_MAGIC_0 = 0x1f;
-const GZIP_MAGIC_1 = 0x8b;
-
 /**
  * Fetch the compiler WASM, inflating it when it arrives gzipped (design D4 of
- * compress-compiler-wasm). The production build ships the ~27 MiB module as
- * .wasm.gz to stay under static-host per-file caps; dev serves it raw from
- * node_modules. Sniffing the gzip magic bytes instead of the URL suffix keeps
- * one code path for both, and degrades to pass-through if a host serves .gz
- * with Content-Encoding so the browser has already inflated it. The returned
- * Response streams into WebAssembly.instantiateStreaming via wasm-bindgen.
+ * compress-compiler-wasm; sniffing logic shared with the Vale loader via
+ * gzip-fetch). The production build ships the ~27 MiB module as .wasm.gz;
+ * dev serves it raw from node_modules. The returned Response streams into
+ * WebAssembly.instantiateStreaming via wasm-bindgen.
  */
-async function fetchCompilerModule(): Promise<Response> {
-  const response = await fetch(compilerWasmUrl);
-  if (!response.ok || response.body === null) {
-    throw new Error(`failed to load compiler WASM (${response.status})`);
-  }
-  const reader = response.body.getReader();
-  const first = await reader.read();
-  const head = first.value ?? new Uint8Array(0);
-  const rest = new ReadableStream<Uint8Array>({
-    start(controller) {
-      if (head.length > 0) controller.enqueue(head);
-    },
-    async pull(controller) {
-      const { done, value } = await reader.read();
-      if (done) {
-        controller.close();
-      } else {
-        controller.enqueue(value);
-      }
-    },
-    cancel(reason) {
-      return reader.cancel(reason);
-    },
-  });
-  const isGzip = head.length >= 2 && head[0] === GZIP_MAGIC_0 && head[1] === GZIP_MAGIC_1;
-  // lib.dom types DecompressionStream's writable as WritableStream<BufferSource>,
-  // which strict variance rejects in pipeThrough; at runtime the pair is
-  // Uint8Array in, Uint8Array out.
-  const gunzip = new DecompressionStream("gzip") as unknown as ReadableWritablePair<Uint8Array, Uint8Array>;
-  const body = isGzip ? rest.pipeThrough(gunzip) : rest;
-  return new Response(body, { headers: { "Content-Type": "application/wasm" } });
+function fetchCompilerModule(): Promise<Response> {
+  return fetchMaybeGzipped(compilerWasmUrl, "compiler WASM");
 }
 
 /**
@@ -115,10 +82,10 @@ async function fetchArmymemoTarball(): Promise<Uint8Array> {
     throw new Error(`failed to load vendored armymemo package (${response.status})`);
   }
   const bytes = new Uint8Array(await response.arrayBuffer());
-  if (bytes.length >= 2 && bytes[0] === GZIP_MAGIC_0 && bytes[1] === GZIP_MAGIC_1) {
+  if (looksGzipped(bytes)) {
     return bytes;
   }
-  // Same lib.dom variance workaround as the DecompressionStream above.
+  // Same lib.dom variance workaround as the DecompressionStream in gzip-fetch.
   const gzip = new CompressionStream("gzip") as unknown as ReadableWritablePair<Uint8Array, Uint8Array>;
   const regzipped = new Response(new Response(bytes).body!.pipeThrough(gzip));
   return new Uint8Array(await regzipped.arrayBuffer());
